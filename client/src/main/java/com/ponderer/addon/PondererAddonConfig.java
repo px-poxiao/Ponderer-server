@@ -42,7 +42,7 @@ public final class PondererAddonConfig {
                 }
             }
             try (Writer writer = Files.newBufferedWriter(path)) {
-                values.store(writer, "Ponderer Addon configuration");
+                values.store(writer, "Ponderer Client Addon configuration");
             }
         } catch (IOException ignored) {
         }
@@ -85,6 +85,6 @@ public final class PondererAddonConfig {
     }
 
     private static Path configPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve("ponderer_addon.properties");
+        return FabricLoader.getInstance().getConfigDir().resolve("ponderer_client_addon.properties");
     }
 }

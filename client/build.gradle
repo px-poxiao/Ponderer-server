@@ -3,10 +3,10 @@ plugins {
 }
 
 group = 'com.ponderer.addon'
-version = '1.0.0'
+version = '1.0'
 
 base {
-    archivesName = 'ponderer-addon-1.21.1'
+    archivesName = 'ponderer-client-addon'
 }
 
 java {
@@ -33,5 +33,5 @@ dependencies {
 }
 
 loom {
-    mixin.setDefaultRefmapName('ponderer_addon.refmap.json')
+    mixin.setDefaultRefmapName('ponderer_client_addon.refmap.json')
 }

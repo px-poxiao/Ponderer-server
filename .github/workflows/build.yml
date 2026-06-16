@@ -34,18 +34,25 @@ jobs:
       - name: Build client mod
         run: gradle -p client clean build --no-daemon
 
+      - name: Prepare release artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp server/build/libs/ponderer_server-1.0.jar dist/ponderer_server_1.0.jar
+          cp client/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+
       - name: Upload server plugin
         uses: actions/upload-artifact@v4
         with:
-          name: ponderer-server-plugin
-          path: server/build/libs/*.jar
+          name: ponderer_server_1.0
+          path: dist/ponderer_server_1.0.jar
           if-no-files-found: error
           retention-days: 14
 
       - name: Upload client mod
         uses: actions/upload-artifact@v4
         with:
-          name: ponderer-client-mod
-          path: client/build/libs/*.jar
+          name: ponderer_client_addon_1.0_mc1.21.1_fabric
+          path: dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
           if-no-files-found: error
           retention-days: 14

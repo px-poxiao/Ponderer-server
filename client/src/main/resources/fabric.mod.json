@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "id": "ponderer_addon",
-  "version": "1.0.0",
-  "name": "Ponderer Addon",
-  "description": "Client addon for PondererServer: server AI proxy, command relay, and file watch notifications.",
+  "id": "ponderer_client_addon",
+  "version": "1.0",
+  "name": "Ponderer Client Addon",
+  "description": "Client addon for PondererServer: server AI proxy, command relay, file watch notifications, and editor integration.",
   "authors": ["PondererServer"],
   "license": "MIT",
   "environment": "client",
   "mixins": [
-    "ponderer_addon.mixins.json"
+    "ponderer_client_addon.mixins.json"
   ],
   "entrypoints": {
     "client": [

@@ -4,7 +4,11 @@ plugins {
 }
 
 group = 'com.ponderer'
-version = '1.0.0'
+version = '1.0'
+
+base {
+    archivesName = 'ponderer_server'
+}
 
 java {
     toolchain {

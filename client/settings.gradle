@@ -4,4 +4,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'PondererAIAddon'
+rootProject.name = 'ponderer-client-addon'

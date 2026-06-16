@@ -1,5 +1,5 @@
 name: PondererServer
-version: '1.0.0'
+version: '1.0'
 main: com.ponderer.server.PondererPlugin
 api-version: '1.21'
 description: Server-side plugin for the Ponderer mod
