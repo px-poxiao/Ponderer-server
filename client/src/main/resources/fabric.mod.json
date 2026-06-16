@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "ponderer_addon",
+  "version": "1.0.0",
+  "name": "Ponderer Addon",
+  "description": "Client addon for PondererServer: server AI proxy, command relay, and file watch notifications.",
+  "authors": ["PondererServer"],
+  "license": "MIT",
+  "environment": "client",
+  "mixins": [
+    "ponderer_addon.mixins.json"
+  ],
+  "entrypoints": {
+    "client": [
+      "com.ponderer.addon.PondererAddonClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "fabric-api": "*",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "ponderer": "*"
+  }
+}

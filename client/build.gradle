@@ -1,0 +1,37 @@
+plugins {
+    id 'fabric-loom' version '1.7.4'
+}
+
+group = 'com.ponderer.addon'
+version = '1.0.0'
+
+base {
+    archivesName = 'ponderer-addon-1.21.1'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.parchmentmc.org' }
+    maven { url = 'https://maven.fuzs.net/releases' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings loom.officialMojangMappings()
+    modImplementation 'net.fabricmc:fabric-loader:0.16.9'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.102.0+1.21.1'
+
+    // Ponderer as a local jar dependency (compile-only, provided at runtime by the player)
+    modCompileOnly fileTree(dir: 'libs', include: '*.jar')
+}
+
+loom {
+    mixin.setDefaultRefmapName('ponderer_addon.refmap.json')
+}

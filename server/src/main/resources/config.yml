@@ -1,0 +1,125 @@
+# Ponderer Server Plugin Configuration
+
+# Master feature switches. Disable a feature here to make the related
+# commands and plugin-message handlers return a clear "disabled" response.
+features:
+  sync: true
+  upload: true
+  command_relay: true
+  structure_import: true
+  server_ai: true
+  review: true
+  visibility: true
+  visibility_groups: true
+  collaboration: true
+  reports: true
+  subscriptions: true
+  locks: true
+  backups: true
+  history: true
+  permission_admin: true
+  player_stats: true
+
+# AI provider settings for server-side API proxy.
+ai:
+  provider: "anthropic"       # anthropic | openai
+  api_base_url: ""            # Empty = provider default
+  api_key: ""
+  model: ""                   # Empty = provider default
+  max_tokens: 16384
+  fail_if_api_key_missing: true
+  allow_client_provider_override: false
+  pricing:
+    anthropic_input: 3.0      # USD per 1M input tokens
+    anthropic_output: 15.0    # USD per 1M output tokens
+    openai_input: 5.0
+    openai_output: 15.0
+
+# Rate limiting.
+rate_limit:
+  uploads_per_hour: 20        # 0 = unlimited
+
+# Backup settings. Also requires features.backups = true.
+backup:
+  max_backups: 10             # 0 = disabled
+
+# Logging and statistics.
+logging:
+  log_ai_calls: true
+  log_uploads: true
+  log_topups: true
+
+# Default upload limit. 0 = unlimited. LuckPerms meta "ponderer-upload-limit"
+# overrides this value per player. -1 also means unlimited.
+default_upload_limit: 0
+
+# Scene item filter.
+scene_filter:
+  enabled: true
+  mode: "off"                 # off | whitelist | blacklist
+  items: []
+
+# NBT restriction for carrier item / scene metadata.
+nbt_restriction:
+  enabled: false
+  mode: "whitelist"           # whitelist = NBT required; blacklist = NBT forbidden
+
+# Upload validation.
+upload_validation:
+  max_scene_size_bytes: 0     # 0 = unlimited
+  push_cooldown_seconds: 0    # 0 = disabled
+  require_region_permission: true
+  check_conflicts: true
+  allow_force_push: true
+
+# Compatibility aliases kept for older config files.
+max_scene_size_bytes: 0
+push_cooldown_seconds: 0
+
+# Reports. Also requires features.reports = true.
+reports:
+  threshold: 3
+  auto_hide: true
+
+# Compatibility alias kept for older config files.
+report_threshold: 3
+
+# Scene review queue. Also requires features.review = true.
+review:
+  mode: "auto"                # auto | ai | manual
+  ai_error_fallback: "pending" # pending | reject | approve
+
+# Separate AI config for scene review.
+review_ai:
+  provider: "anthropic"
+  api_base_url: ""
+  api_key: ""
+  model: ""
+  system_prompt: "You are a content moderator for a Minecraft server. Review this Ponder scene upload. Carrier item: {item}. Scene ID: {scene}. Scene JSON: {json}. If appropriate, reply only: yes. If inappropriate, reply only: no."
+
+# Scheduled full backup. Also requires features.backups = true.
+scheduled_backup:
+  enabled: false
+  interval_hours: 24
+
+# Scene expiry. Requires features.sync = true so scene accesses are recorded.
+expiry:
+  enabled: false
+  days: 30
+
+# Client command relay. Also requires features.command_relay = true.
+client_commands:
+  allowed:
+    - pull
+    - push
+    - reload
+    - new
+    - list
+    - edit
+    - export
+    - import
+    - delete
+    - copy
+    - download
+    - convert
+    - unregister_pack

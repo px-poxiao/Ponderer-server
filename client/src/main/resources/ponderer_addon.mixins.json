@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.ponderer.addon.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "AiSceneGeneratorMixin",
+    "PondererCanEditMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

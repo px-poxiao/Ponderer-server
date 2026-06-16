@@ -1,0 +1,106 @@
+# Ponderer Server messages
+# Supports Bukkit color codes with '&' and placeholders like {0}, {1}.
+
+prefix: "&8[&bPonderer&8]&r"
+
+# Permissions
+no_permission: "{prefix} &cYou do not have permission to do that."
+feature_disabled: "{prefix} &cThis feature is disabled by server configuration: &f{0}"
+player_only: "{prefix} &cThis command can only be used by players."
+invalid_usage: "{prefix} &cUsage: &f{0}"
+no_upload_permission: "{prefix} &cYou do not have permission to upload scenes."
+no_pull_permission: "{prefix} &cYou do not have permission to pull scenes."
+no_region_permission: "{prefix} &cYou do not have permission to create coordinate-triggered scenes."
+no_edit_permission: "{prefix} &cYou cannot edit a scene owned by another player."
+
+# Upload
+upload_rate_limited: "{prefix} &cYou are uploading too frequently. Please try again later."
+upload_limit_reached: "{prefix} &cYou have reached your scene upload limit ({0})."
+upload_conflict: "{prefix} &eScene &f{0} &ehas a server-side change. Use force to overwrite it."
+upload_force_disabled: "{prefix} &cForce upload is disabled by server configuration."
+upload_success: "{prefix} &aScene uploaded: &f{0}"
+upload_failed: "{prefix} &cFailed to save scene: &f{0}"
+upload_too_large: "{prefix} &cScene JSON is too large. Maximum: {0} bytes."
+upload_cooldown: "{prefix} &cUpload cooldown active. Please wait {0} second(s)."
+upload_item_not_allowed: "{prefix} &cItem &f{0} &cis not allowed for scene uploads."
+upload_nbt_required: "{prefix} &cThis scene must include custom NBT data."
+upload_nbt_forbidden: "{prefix} &cThis scene may not include custom NBT data."
+upload_pending_review: "{prefix} &eScene &f{0} &ewas submitted and is waiting for review."
+scene_locked: "{prefix} &cScene &f{0} &cis locked and cannot be modified."
+
+# Structure import
+structure_not_found: "{prefix} &cStructure not found: &f{0}"
+structure_import_success: "{prefix} &aStructure imported: &f{0} &a-> &f{1}"
+
+# AI
+ai_no_permission: "{prefix} &cYou do not have permission to use the server AI API."
+ai_no_tokens: "{prefix} &cYour server AI token balance is empty. Ask an admin to top it up."
+ai_tokens_used: "{prefix} &7AI tokens used: &f{0} &7| Remaining: &f{1}"
+ai_call_failed: "{prefix} &cAI request failed: &f{0}"
+ai_not_configured: "{prefix} &cThe server AI API is not configured."
+
+# Admin
+admin_no_permission: "{prefix} &cYou do not have permission to use admin commands."
+admin_no_topup_permission: "{prefix} &cYou do not have permission to top up AI tokens."
+admin_player_not_found: "{prefix} &cPlayer not found: &f{0}"
+admin_invalid_amount: "{prefix} &cInvalid amount."
+admin_invalid_limit: "{prefix} &cInvalid limit."
+admin_topup_success: "{prefix} &aAdded &f{1} &atokens to &f{0}&a. Current balance: &f{2}"
+admin_settokens_success: "{prefix} &aSet &f{0}&a's token balance to &f{1}&a."
+admin_tokens_info: "{prefix} &e{0} - Tokens: &f{1} &e| AI calls: &f{2}"
+admin_setlimit_success: "{prefix} &aSet &f{0}&a's upload limit to &f{1}&a."
+admin_resetcount_success: "{prefix} &aReset upload count for &f{0}&a."
+admin_stats_header: "{prefix} &e=== Ponderer stats for {0} ==="
+admin_stats_uploads: "&7Uploaded scenes: &f{0}"
+admin_stats_ai_calls: "&7AI calls: &f{0}"
+admin_stats_tokens: "&7Remaining tokens: &f{0}"
+admin_scenes_total: "{prefix} &eTotal server scenes: &f{0}"
+admin_grant_success: "{prefix} &aGranted &f{1} &ato &f{0}&a."
+admin_revoke_success: "{prefix} &aRevoked &f{1} &afrom &f{0}&a."
+admin_help_header: "{prefix} &e=== Ponderer admin commands ==="
+admin_reload_success: "{prefix} &aConfiguration reloaded."
+
+# Review
+review_list_empty: "{prefix} &aThere are no pending scenes."
+review_list_header: "{prefix} &ePending scenes ({0}):"
+review_not_found: "{prefix} &cPending scene not found: &f{0}"
+review_approve_offline: "{prefix} &cThe submitter of scene &f{0} &cis offline, so approval cannot be completed now."
+review_approved: "{prefix} &aApproved scene: &f{0}"
+review_rejected: "{prefix} &cRejected scene &f{0}&c. Reason: {1}"
+review_rejected_notify: "{prefix} &cYour scene &f{0} &cwas rejected. Reason: {1}"
+
+# Groups / visibility
+group_created: "{prefix} &aCreated visibility group: &f{0}"
+group_deleted: "{prefix} &aDeleted visibility group: &f{0}"
+group_player_added: "{prefix} &aAdded &f{0} &ato group &f{1}&a."
+group_player_removed: "{prefix} &aRemoved &f{0} &afrom group &f{1}&a."
+group_members_header: "{prefix} &eMembers of group &f{0} &e({1}):"
+visibility_set: "{prefix} &aScene &f{0} &avisibility set to &f{1}&a."
+
+# Collaboration
+collab_scene_added: "{prefix} &aAdded &f{0} &aas collaborator for scene &f{1}&a."
+collab_scene_removed: "{prefix} &aRemoved &f{0} &afrom collaborators for scene &f{1}&a."
+collab_global_added: "{prefix} &aAdded &f{0} &aas global collaborator for &f{1}&a."
+collab_global_removed: "{prefix} &aRemoved &f{0} &afrom global collaborators for &f{1}&a."
+
+# Reports
+report_submitted: "{prefix} &aReported scene &f{0}&a. Thanks for the feedback."
+reports_list_empty: "{prefix} &aThere are no flagged scenes."
+reports_list_header: "{prefix} &eFlagged scenes ({0}):"
+reports_dismissed: "{prefix} &aDismissed reports for scene &f{0}&a."
+
+# Subscriptions
+subscribed: "{prefix} &aSubscribed to scene &f{0}&a."
+unsubscribed: "{prefix} &aUnsubscribed from scene &f{0}&a."
+scene_updated_notification: "{prefix} &eScene &f{0} &ewas updated by &f{1}&e."
+
+# Locks
+scene_locked_success: "{prefix} &aScene &f{0} &ais now locked."
+scene_unlocked_success: "{prefix} &aScene &f{0} &ais now unlocked."
+
+# History
+history_none: "{prefix} &cScene &f{0} &chas no backup history."
+history_header: "{prefix} &eHistory for scene &f{0} &e({1}):"
+rollback_not_found: "{prefix} &cBackup timestamp not found: &f{0}"
+rollback_success: "{prefix} &aRolled scene &f{0} &aback to &f{1}&a."
+rollback_failed: "{prefix} &cFailed to roll back scene &f{0}&c."
