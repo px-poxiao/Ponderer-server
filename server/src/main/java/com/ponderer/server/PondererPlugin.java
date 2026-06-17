@@ -77,10 +77,10 @@ public final class PondererPlugin extends JavaPlugin {
         ReviewAiService reviewAi = new ReviewAiService(config, reviewStore, uploadHandler, this, getLogger());
         uploadHandler.setReviewAi(reviewAi);
 
-        DownloadStructureHandler downloadHandler = new DownloadStructureHandler(sceneStore, permissions, messages, config, this);
+        DownloadStructureHandler downloadHandler = new DownloadStructureHandler(sceneStore, permissions, messages, config, this, syncHandler);
         AiProxyHandler aiHandler = new AiProxyHandler(config, permissions, playerData, stats, messages, this, getLogger());
 
-        PacketListener packetListener = new PacketListener(syncHandler, uploadHandler, downloadHandler, aiHandler);
+        PacketListener packetListener = new PacketListener(syncHandler, uploadHandler, downloadHandler, aiHandler, getLogger());
         registerChannels(packetListener);
 
         // Admin command

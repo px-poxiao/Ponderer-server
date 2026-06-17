@@ -80,33 +80,40 @@ public final class AiProxyHandler {
         ).whenComplete((result, err) -> {
             if (err != null) {
                 logger.warning("[Ponderer] AI call failed for " + player.getName() + ": " + err.getMessage());
-                sendError(player, packet.requestId(), messages.get("ai_call_failed", err.getMessage()));
+                plugin.getServer().getScheduler().runTask(plugin,
+                        () -> sendError(player, packet.requestId(), messages.get("ai_call_failed", err.getMessage())));
                 return;
             }
 
-            long outputTokens = TokenCounter.estimate(result);
-            long totalTokens = estimatedInputTokens + outputTokens;
-            playerData.deductTokens(player.getUniqueId(), totalTokens);
-            playerData.incrementAiCalls(player.getUniqueId());
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
 
-            if (config.isLogAiCalls()) {
-                stats.recordAiCall(player.getUniqueId(), player.getName(),
-                        estimatedInputTokens, outputTokens, provider);
-            }
+                long outputTokens = TokenCounter.estimate(result);
+                long totalTokens = estimatedInputTokens + outputTokens;
+                playerData.deductTokens(player.getUniqueId(), totalTokens);
+                playerData.incrementAiCalls(player.getUniqueId());
 
-            long newBalance = playerData.getRemainingTokens(player.getUniqueId());
-            player.sendMessage(messages.get("ai_tokens_used", totalTokens, newBalance));
+                if (config.isLogAiCalls()) {
+                    stats.recordAiCall(player.getUniqueId(), player.getName(),
+                            estimatedInputTokens, outputTokens, provider);
+                }
 
-            sendResponse(player, packet.requestId(), result);
+                long newBalance = playerData.getRemainingTokens(player.getUniqueId());
+                player.sendMessage(messages.get("ai_tokens_used", totalTokens, newBalance));
+
+                sendResponse(player, packet.requestId(), result);
+            });
         });
     }
 
     private void sendResponse(Player player, String requestId, String result) {
+        if (!player.isOnline()) return;
         player.sendPluginMessage(plugin, AiResponsePacket.CHANNEL,
                 new AiResponsePacket(requestId, result, null).encode());
     }
 
     private void sendError(Player player, String requestId, String error) {
+        if (!player.isOnline()) return;
         player.sendPluginMessage(plugin, AiResponsePacket.CHANNEL,
                 new AiResponsePacket(requestId, null, error).encode());
     }

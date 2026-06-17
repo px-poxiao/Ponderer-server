@@ -10,6 +10,9 @@ import java.nio.charset.StandardCharsets;
  */
 public final class MinecraftByteBuf {
 
+    private static final int MAX_STRING_BYTES = 8 * 1024 * 1024;
+    private static final int MAX_BYTE_ARRAY_BYTES = 8 * 1024 * 1024;
+
     private MinecraftByteBuf() {}
 
     public static int readVarInt(ByteBuf buf) {
@@ -17,10 +20,11 @@ public final class MinecraftByteBuf {
         int shift = 0;
         byte b;
         do {
+            if (!buf.isReadable()) throw new IllegalArgumentException("Malformed VarInt");
             b = buf.readByte();
             value |= (b & 0x7F) << shift;
             shift += 7;
-            if (shift > 35) throw new RuntimeException("VarInt too big");
+            if (shift > 35) throw new IllegalArgumentException("VarInt too big");
         } while ((b & 0x80) != 0);
         return value;
     }
@@ -35,13 +39,23 @@ public final class MinecraftByteBuf {
 
     public static String readUtf(ByteBuf buf) {
         int length = readVarInt(buf);
+        if (length < 0 || length > MAX_STRING_BYTES) {
+            throw new IllegalArgumentException("Invalid string length: " + length);
+        }
+        if (buf.readableBytes() < length) {
+            throw new IllegalArgumentException("Truncated string payload");
+        }
         byte[] bytes = new byte[length];
         buf.readBytes(bytes);
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public static void writeUtf(ByteBuf buf, String value) {
+        if (value == null) value = "";
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > MAX_STRING_BYTES) {
+            throw new IllegalArgumentException("String too large: " + bytes.length);
+        }
         writeVarInt(buf, bytes.length);
         buf.writeBytes(bytes);
     }
@@ -60,12 +74,22 @@ public final class MinecraftByteBuf {
 
     public static byte[] readByteArray(ByteBuf buf) {
         int length = readVarInt(buf);
+        if (length < 0 || length > MAX_BYTE_ARRAY_BYTES) {
+            throw new IllegalArgumentException("Invalid byte array length: " + length);
+        }
+        if (buf.readableBytes() < length) {
+            throw new IllegalArgumentException("Truncated byte array payload");
+        }
         byte[] bytes = new byte[length];
         buf.readBytes(bytes);
         return bytes;
     }
 
     public static void writeByteArray(ByteBuf buf, byte[] bytes) {
+        if (bytes == null) bytes = new byte[0];
+        if (bytes.length > MAX_BYTE_ARRAY_BYTES) {
+            throw new IllegalArgumentException("Byte array too large: " + bytes.length);
+        }
         writeVarInt(buf, bytes.length);
         buf.writeBytes(bytes);
     }

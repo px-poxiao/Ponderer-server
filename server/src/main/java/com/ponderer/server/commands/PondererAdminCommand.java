@@ -324,11 +324,10 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                     return;
                 }
                 Player owner = getOnlineOwner(entry.ownerUuid);
-                if (owner == null) {
-                    sender.sendMessage(messages.get("review_approve_offline", sceneId));
+                if (!uploadHandler.commitApproved(entry, owner)) {
+                    sender.sendMessage(messages.get("upload_failed", sceneId));
                     return;
                 }
-                uploadHandler.commitApproved(entry, owner);
                 sender.sendMessage(messages.get("review_approved", sceneId));
             }
             case "reject" -> {

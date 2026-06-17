@@ -34,6 +34,109 @@ jobs:
       - name: Build client mod
         run: gradle -p client clean build --no-daemon
 
+      - name: Smoke test Paper server startup
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+
+          PAPER_VERSION="1.21.1"
+          SMOKE_DIR="$GITHUB_WORKSPACE/.smoke-server"
+
+          mkdir -p "$SMOKE_DIR/plugins"
+
+          PAPER_BUILD="$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/${PAPER_VERSION}" \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["builds"][-1])')"
+          PAPER_JAR="paper-${PAPER_VERSION}-${PAPER_BUILD}.jar"
+          curl -fLo "$SMOKE_DIR/paper.jar" \
+            "https://api.papermc.io/v2/projects/paper/versions/${PAPER_VERSION}/builds/${PAPER_BUILD}/downloads/${PAPER_JAR}"
+
+          curl -fL -o "$SMOKE_DIR/plugins/LuckPerms.jar" \
+            "https://download.luckperms.net/loader/bukkit"
+          cp server/build/libs/ponderer_server-1.0.jar "$SMOKE_DIR/plugins/PondererServer.jar"
+
+          echo "eula=true" > "$SMOKE_DIR/eula.txt"
+
+          python3 - <<'PY'
+          import pathlib
+          import subprocess
+          import sys
+          import time
+
+          root = pathlib.Path(".smoke-server")
+          log_path = root / "server.log"
+
+          proc = subprocess.Popen(
+              ["java", "-Xms512M", "-Xmx1G", "-jar", "paper.jar", "--nogui"],
+              cwd=root,
+              stdin=subprocess.PIPE,
+              stdout=subprocess.PIPE,
+              stderr=subprocess.STDOUT,
+              text=True,
+              bufsize=1,
+          )
+
+          deadline = time.time() + 180
+          saw_done = False
+          saw_plugin_enabled = False
+          lines = []
+
+          try:
+              with log_path.open("w", encoding="utf-8", errors="replace") as log:
+                  while time.time() < deadline:
+                      line = proc.stdout.readline()
+                      if line:
+                          lines.append(line.rstrip())
+                          log.write(line)
+                          log.flush()
+                          if "Done (" in line or "Done!" in line:
+                              saw_done = True
+                          if "PondererServer enabled" in line:
+                              saw_plugin_enabled = True
+                          if saw_done and saw_plugin_enabled:
+                              break
+                      elif proc.poll() is not None:
+                          break
+                      else:
+                          time.sleep(0.2)
+
+                  if proc.poll() is None and proc.stdin:
+                      proc.stdin.write("stop\n")
+                      proc.stdin.flush()
+
+                  try:
+                      proc.wait(timeout=60)
+                  except subprocess.TimeoutExpired:
+                      proc.kill()
+                      proc.wait(timeout=10)
+
+                  for remaining in proc.stdout:
+                      lines.append(remaining.rstrip())
+                      log.write(remaining)
+          finally:
+              if proc.poll() is None:
+                  proc.kill()
+
+          if not saw_done or not saw_plugin_enabled or proc.returncode not in (0, 143):
+              print("Minecraft smoke test failed.", file=sys.stderr)
+              print(f"saw_done={saw_done} saw_plugin_enabled={saw_plugin_enabled} returncode={proc.returncode}", file=sys.stderr)
+              print("Last server log lines:", file=sys.stderr)
+              for line in lines[-80:]:
+                  print(line, file=sys.stderr)
+              sys.exit(1)
+
+          print("Minecraft smoke test passed: server reached Done and PondererServer enabled.")
+          PY
+
+      - name: Upload smoke test server log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-smoke-server-log
+          path: .smoke-server/server.log
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Prepare release artifacts
         shell: bash
         run: |

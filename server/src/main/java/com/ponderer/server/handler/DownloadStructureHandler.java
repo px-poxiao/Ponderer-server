@@ -3,7 +3,6 @@ package com.ponderer.server.handler;
 import com.ponderer.server.config.MessageConfig;
 import com.ponderer.server.config.PluginConfig;
 import com.ponderer.server.network.packets.DownloadStructureResultPacket;
-import com.ponderer.server.network.packets.SyncResponsePacket;
 import com.ponderer.server.permissions.PermissionManager;
 import com.ponderer.server.storage.SceneStore;
 import org.bukkit.entity.Player;
@@ -11,7 +10,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 public final class DownloadStructureHandler {
 
@@ -20,14 +18,17 @@ public final class DownloadStructureHandler {
     private final MessageConfig messages;
     private final PluginConfig config;
     private final Plugin plugin;
+    private final SyncHandler syncHandler;
 
     public DownloadStructureHandler(SceneStore sceneStore, PermissionManager permissions,
-                                    MessageConfig messages, PluginConfig config, Plugin plugin) {
+                                    MessageConfig messages, PluginConfig config, Plugin plugin,
+                                    SyncHandler syncHandler) {
         this.sceneStore = sceneStore;
         this.permissions = permissions;
         this.messages = messages;
         this.config = config;
         this.plugin = plugin;
+        this.syncHandler = syncHandler;
     }
 
     public void handle(Player player, String sourceId) {
@@ -41,7 +42,7 @@ public final class DownloadStructureHandler {
             return;
         }
 
-        if (sourceId == null || !sourceId.contains(":")) {
+        if (!isValidResourceId(sourceId)) {
             sendResult(player, new DownloadStructureResultPacket(sourceId, "", false, "Invalid structure id"));
             return;
         }
@@ -64,10 +65,7 @@ public final class DownloadStructureHandler {
                 return;
             }
 
-            List<SyncResponsePacket.FileEntry> scripts = sceneStore.collectScripts();
-            List<SyncResponsePacket.FileEntry> structures = sceneStore.collectStructures();
-            player.sendPluginMessage(plugin, SyncResponsePacket.CHANNEL,
-                    new SyncResponsePacket(scripts, structures).encode());
+            syncHandler.sendCurrentState(player);
 
             sendResult(player, new DownloadStructureResultPacket(sourceId, targetId, true, "OK"));
             player.sendMessage(messages.get("structure_import_success", sourceId, targetId));
@@ -88,6 +86,18 @@ public final class DownloadStructureHandler {
         if (Files.exists(generated)) return generated;
 
         return null;
+    }
+
+    private boolean isValidResourceId(String id) {
+        if (id == null || id.isBlank()) return false;
+        int colon = id.indexOf(':');
+        if (colon <= 0 || colon == id.length() - 1) return false;
+        String namespace = id.substring(0, colon);
+        String path = id.substring(colon + 1);
+        return namespace.matches("[a-zA-Z0-9_.-]+")
+                && path.matches("[a-zA-Z0-9/_\\-.]+")
+                && !path.contains("..")
+                && !path.contains("\\");
     }
 
     private void sendResult(Player player, DownloadStructureResultPacket packet) {

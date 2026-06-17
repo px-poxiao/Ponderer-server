@@ -28,7 +28,7 @@ public abstract class PonderUiEditButtonMixin extends Screen {
         super(CommonComponents.EMPTY);
     }
 
-    @Inject(method = "init", at = @At("TAIL"), remap = false)
+    @Inject(method = "init", at = @At("TAIL"), remap = false, require = 0)
     private void pondererAddon$addEditButton(CallbackInfo ci) {
         if (!PondererAddonConfig.isEditButtonEnabled()) {
             return;

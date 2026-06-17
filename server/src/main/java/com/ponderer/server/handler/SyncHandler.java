@@ -8,9 +8,17 @@ import com.ponderer.server.storage.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class SyncHandler {
+
+    private static final Pattern RESOURCE_ID =
+            Pattern.compile("[a-z0-9_.-]+:[a-z0-9_./-]+");
 
     private final SceneStore sceneStore;
     private final PermissionManager permissions;
@@ -46,8 +54,11 @@ public final class SyncHandler {
             return;
         }
 
+        sendCurrentState(player);
+    }
+
+    public void sendCurrentState(Player player) {
         List<SyncResponsePacket.FileEntry> scripts = sceneStore.collectScripts();
-        List<SyncResponsePacket.FileEntry> structures = sceneStore.collectStructures();
 
         // Filter by visibility and review status
         boolean autoReview = "auto".equals(config.getReviewMode());
@@ -61,7 +72,24 @@ public final class SyncHandler {
                 .peek(e -> accessStore.recordAccess(e.id()))
                 .toList();
 
+        Set<String> referencedStructures = referencedResourceIds(filteredScripts);
+        List<SyncResponsePacket.FileEntry> filteredStructures = sceneStore.collectStructures().stream()
+                .filter(e -> referencedStructures.contains(e.id()))
+                .toList();
+
         player.sendPluginMessage(plugin, SyncResponsePacket.CHANNEL,
-                new SyncResponsePacket(filteredScripts, structures).encode());
+                new SyncResponsePacket(filteredScripts, filteredStructures).encode());
+    }
+
+    private Set<String> referencedResourceIds(List<SyncResponsePacket.FileEntry> scripts) {
+        Set<String> ids = new HashSet<>();
+        for (SyncResponsePacket.FileEntry entry : scripts) {
+            String json = new String(entry.bytes(), StandardCharsets.UTF_8);
+            Matcher matcher = RESOURCE_ID.matcher(json);
+            while (matcher.find()) {
+                ids.add(matcher.group());
+            }
+        }
+        return ids;
     }
 }

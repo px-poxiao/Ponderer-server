@@ -15,6 +15,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 public final class UploadHandler {
 
@@ -217,23 +218,29 @@ public final class UploadHandler {
     }
 
     /** Called by admin approve or ReviewAiService after approval. */
-    public void commitApproved(ReviewStore.ReviewEntry entry, Player notifyPlayer) {
+    public boolean commitApproved(ReviewStore.ReviewEntry entry, Player notifyPlayer) {
+        UUID ownerUuid = parseUuid(entry.ownerUuid);
+        if (ownerUuid == null) return false;
+
         UploadScenePacket packet = new UploadScenePacket(
                 entry.sceneId, entry.json,
                 entry.structures == null ? List.of() : entry.structures.stream()
                         .map(s -> new UploadScenePacket.StructureEntry(s.id, s.bytes)).toList(),
                 "force", "");
-        doSave(notifyPlayer, packet);
-        reviewStore.remove(entry.sceneId);
+        boolean ok = doSave(ownerUuid, displayName(ownerUuid, notifyPlayer), notifyPlayer, packet);
+        if (ok) reviewStore.remove(entry.sceneId);
+        return ok;
     }
 
-    private void doSave(Player player, UploadScenePacket packet) {
+    private boolean doSave(Player player, UploadScenePacket packet) {
+        return doSave(player.getUniqueId(), player.getName(), player, packet);
+    }
+
+    private boolean doSave(UUID actorUuid, String actorName, Player responsePlayer, UploadScenePacket packet) {
         byte[] existing = sceneStore.readScene(packet.sceneId());
+        boolean newScene = existing == null;
         if (existing != null) {
             if (config.isBackupsEnabled()) backupManager.backupScene(packet.sceneId(), existing);
-        } else {
-            ownerStore.setOwner(packet.sceneId(), player.getUniqueId());
-            playerData.incrementUploadCount(player.getUniqueId());
         }
 
         boolean ok = sceneStore.saveScene(packet.sceneId(), packet.json());
@@ -248,25 +255,34 @@ public final class UploadHandler {
         }
 
         if (ok) {
+            if (newScene) {
+                ownerStore.setOwner(packet.sceneId(), actorUuid);
+                playerData.incrementUploadCount(actorUuid);
+            }
             String newHash = computeHash(packet.sceneId());
             syncMeta.putHash("scripts/" + packet.sceneId(), newHash);
-            stats.recordUpload(player.getUniqueId(), packet.sceneId());
-            send(player, response(packet, "ok:" + newHash));
-            player.sendMessage(messages.get("upload_success", packet.sceneId()));
+            stats.recordUpload(actorUuid, packet.sceneId());
+            if (responsePlayer != null && responsePlayer.isOnline()) {
+                send(responsePlayer, response(packet, "ok:" + newHash));
+                responsePlayer.sendMessage(messages.get("upload_success", packet.sceneId()));
+            }
 
             // Notify subscribers
             if (config.isSubscriptionsEnabled()) {
                 for (var sub : subscriptions.getSubscribers(packet.sceneId())) {
-                    String msg = messages.get("scene_updated_notification", packet.sceneId(), player.getName());
+                    String msg = messages.get("scene_updated_notification", packet.sceneId(), actorName);
                     var online = plugin.getServer().getPlayer(sub);
                     if (online != null) online.sendMessage(msg);
                     else subscriptions.queueNotification(sub, msg);
                 }
             }
         } else {
-            send(player, response(packet, "error"));
-            player.sendMessage(messages.get("upload_failed", packet.sceneId()));
+            if (responsePlayer != null && responsePlayer.isOnline()) {
+                send(responsePlayer, response(packet, "error"));
+                responsePlayer.sendMessage(messages.get("upload_failed", packet.sceneId()));
+            }
         }
+        return ok;
     }
 
     private String getServerHash(String sceneId) {
@@ -324,5 +340,19 @@ public final class UploadHandler {
 
     private UploadResponsePacket response(UploadScenePacket packet, String status) {
         return new UploadResponsePacket(packet.sceneId(), packet.pack(), status);
+    }
+
+    private UUID parseUuid(String raw) {
+        try {
+            return raw == null ? null : UUID.fromString(raw);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private String displayName(UUID uuid, Player player) {
+        if (player != null) return player.getName();
+        String name = plugin.getServer().getOfflinePlayer(uuid).getName();
+        return name != null ? name : uuid.toString();
     }
 }
