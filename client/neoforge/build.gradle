@@ -29,14 +29,11 @@ neoForge {
     mods {
         "${mod_id}" {
             sourceSet(sourceSets.main)
-            sourceSet(commonProject.sourceSets.main)
         }
     }
 }
 
 dependencies {
-    compileOnly(commonProject)
-    compileOnly fileTree(dir: "../libs", include: "*.jar")
     implementation "net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}"
 }
 

@@ -12,7 +12,6 @@ minecraft {
 
 dependencies {
     compileOnly group: "org.spongepowered", name: "mixin", version: "0.8.7"
-    compileOnly fileTree(dir: "../libs", include: "*.jar")
 }
 
 java {

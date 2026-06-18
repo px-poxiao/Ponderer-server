@@ -14,8 +14,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    implementation(commonProject)
-    modCompileOnly fileTree(dir: "../libs", include: "*.jar")
 }
 
 loom {

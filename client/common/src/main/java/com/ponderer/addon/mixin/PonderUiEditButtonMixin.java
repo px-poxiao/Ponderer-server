@@ -1,7 +1,7 @@
 package com.ponderer.addon.mixin;
 
-import com.nododiiiii.ponderer.ponder.SceneRuntime;
 import com.ponderer.addon.PondererAddonConfig;
+import com.ponderer.addon.PondererReflection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -38,7 +38,7 @@ public abstract class PonderUiEditButtonMixin extends Screen {
         }
 
         ResourceLocation activeId = pondererAddon$getActiveSceneId();
-        if (activeId == null || SceneRuntime.findBySceneId(activeId) == null) {
+        if (activeId == null || pondererAddon$findSceneMatch(activeId) == null) {
             return;
         }
 
@@ -50,9 +50,9 @@ public abstract class PonderUiEditButtonMixin extends Screen {
         Button editButton = Button.builder(Component.literal("Edit"), button -> {
             ResourceLocation currentId = pondererAddon$getActiveSceneId();
             if (currentId == null) return;
-            var match = SceneRuntime.findBySceneId(currentId);
+            Object match = pondererAddon$findSceneMatch(currentId);
             if (match != null) {
-                pondererAddon$openEditor(match.scene(), match.sceneIndex());
+                pondererAddon$openEditor(match);
             }
         }).bounds(this.width - 86, y, 48, 20).build();
 
@@ -97,12 +97,20 @@ public abstract class PonderUiEditButtonMixin extends Screen {
     }
 
     @Unique
-    private void pondererAddon$openEditor(Object scene, int sceneIndex) {
+    private Object pondererAddon$findSceneMatch(ResourceLocation sceneId) {
         try {
-            Class<?> dslSceneClass = Class.forName("com.nododiiiii.ponderer.ponder.DslScene");
-            Class<?> editorClass = Class.forName("com.nododiiiii.ponderer.ui.SceneEditorScreen");
-            Object editor = editorClass.getConstructor(dslSceneClass, int.class).newInstance(scene, sceneIndex);
-            if (editor instanceof Screen screen) {
+            return PondererReflection.findSceneById(sceneId);
+        } catch (ReflectiveOperationException ignored) {
+            return null;
+        }
+    }
+
+    @Unique
+    private void pondererAddon$openEditor(Object match) {
+        try {
+            Object scene = PondererReflection.scene(match);
+            Screen screen = PondererReflection.createEditor(scene, PondererReflection.sceneIndex(match));
+            if (screen != null) {
                 Minecraft.getInstance().setScreen(screen);
             }
         } catch (ReflectiveOperationException ignored) {
