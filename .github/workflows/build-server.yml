@@ -1,0 +1,52 @@
+name: Build Server
+
+on:
+  push:
+    paths:
+      - "server/**"
+      - ".github/workflows/build-server.yml"
+  pull_request:
+    paths:
+      - "server/**"
+      - ".github/workflows/build-server.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-server:
+    name: Build server plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+
+      - name: Build server plugin
+        run: gradle -p server clean build --no-daemon
+
+      - name: Prepare server artifact
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp server/build/libs/ponderer_server-1.0.jar dist/ponderer_server_1.0.jar
+
+      - name: Upload server plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: ponderer_server_1.0
+          path: dist/ponderer_server_1.0.jar
+          if-no-files-found: error
+          retention-days: 14
