@@ -3,7 +3,7 @@ plugins {
 }
 
 def commonProject = project(":common")
-def bundlePonderer = providers.gradleProperty("bundlePonderer")
+def bundlePondererFabric = providers.gradleProperty("bundlePondererFabric")
         .map { it.toBoolean() }
         .orElse(false)
 
@@ -17,7 +17,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    if (bundlePonderer.get()) {
+    if (bundlePondererFabric.get()) {
         modImplementation(include("com.nododiiiii:ponderer-fabric:${ponderer_fabric_version}"))
     }
 }

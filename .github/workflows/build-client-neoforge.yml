@@ -83,7 +83,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            gradle -p client clean :neoforge:build -PbundlePonderer=true --no-daemon && break
+            gradle -p client clean :neoforge:build -PbundlePondererNeoForge=true --no-daemon && break
             if [ "$attempt" = "3" ]; then exit 1; fi
             sleep $((attempt * 20))
           done

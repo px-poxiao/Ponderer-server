@@ -3,7 +3,7 @@ plugins {
 }
 
 def commonProject = project(":common")
-def bundlePonderer = providers.gradleProperty("bundlePonderer")
+def bundlePondererNeoForge = providers.gradleProperty("bundlePondererNeoForge")
         .map { it.toBoolean() }
         .orElse(false)
 
@@ -39,7 +39,7 @@ neoForge {
 dependencies {
     implementation "net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}"
 
-    if (bundlePonderer.get()) {
+    if (bundlePondererNeoForge.get()) {
         implementation "com.nododiiiii:ponderer-neoforge:${ponderer_neoforge_version}"
         jarJar "com.nododiiiii:ponderer-neoforge:${ponderer_neoforge_version}"
     }
