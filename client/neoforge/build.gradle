@@ -40,8 +40,8 @@ dependencies {
     implementation "net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}"
 
     if (bundlePonderer.get()) {
-        implementation "com.nododiiiii:ponderer-neoforge:${ponderer_version}"
-        jarJar "com.nododiiiii:ponderer-neoforge:[${ponderer_version},)"
+        implementation "com.nododiiiii:ponderer-neoforge:${ponderer_neoforge_version}"
+        jarJar "com.nododiiiii:ponderer-neoforge:[${ponderer_neoforge_version},)"
     }
 }
 

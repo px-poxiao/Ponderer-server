@@ -5,6 +5,7 @@ on:
     paths:
       - "client/common/**"
       - "client/neoforge/**"
+      - "client/libs/**"
       - "client/build.gradle"
       - "client/settings.gradle"
       - "client/gradle.properties"
@@ -13,6 +14,7 @@ on:
     paths:
       - "client/common/**"
       - "client/neoforge/**"
+      - "client/libs/**"
       - "client/build.gradle"
       - "client/settings.gradle"
       - "client/gradle.properties"
@@ -51,25 +53,15 @@ jobs:
           mkdir -p dist
           cp client/neoforge/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_neoforge.jar
 
-      - name: Checkout Ponderer
-        uses: actions/checkout@v4
-        with:
-          repository: Nobodiiiii/Ponderer
-          ref: 1.21.1
-          path: _deps/ponderer
-
-      - name: Build Ponderer NeoForge
-        run: gradle -p _deps/ponderer :NeoForge:build --no-daemon
-
       - name: Install Ponderer NeoForge into local Maven
         shell: bash
         run: |
           set -euo pipefail
-          version="1.7.1.5"
+          version="1.9.0.6"
           artifact_dir="client/local-maven/com/nododiiiii/ponderer-neoforge/${version}"
           mkdir -p "${artifact_dir}"
-          jarfile="$(find _deps/ponderer/NeoForge/build/libs -maxdepth 1 -name 'ponderer-1.21.1-neoforge-*.jar' ! -name '*sources*' | head -n 1)"
-          test -n "${jarfile}"
+          jarfile="client/libs/ponderer-1.21.1-neoforge-${version}.jar"
+          test -f "${jarfile}"
           cp "${jarfile}" "${artifact_dir}/ponderer-neoforge-${version}.jar"
           cat > "${artifact_dir}/ponderer-neoforge-${version}.pom" <<POM
           <project>
