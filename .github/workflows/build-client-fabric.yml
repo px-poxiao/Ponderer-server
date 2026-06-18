@@ -1,0 +1,60 @@
+name: Build Client Fabric
+
+on:
+  push:
+    paths:
+      - "client/common/**"
+      - "client/fabric/**"
+      - "client/build.gradle"
+      - "client/settings.gradle"
+      - "client/gradle.properties"
+      - ".github/workflows/build-client-fabric.yml"
+  pull_request:
+    paths:
+      - "client/common/**"
+      - "client/fabric/**"
+      - "client/build.gradle"
+      - "client/settings.gradle"
+      - "client/gradle.properties"
+      - ".github/workflows/build-client-fabric.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-client-fabric:
+    name: Build Fabric client mod
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+
+      - name: Build Fabric client mod
+        run: gradle -p client clean :fabric:build --no-daemon
+
+      - name: Prepare Fabric artifact
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp client/fabric/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+
+      - name: Upload Fabric client mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: ponderer_client_addon_1.0_mc1.21.1_fabric
+          path: dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+          if-no-files-found: error
+          retention-days: 14

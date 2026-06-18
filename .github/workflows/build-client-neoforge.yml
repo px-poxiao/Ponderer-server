@@ -1,22 +1,30 @@
-name: Build Client
+name: Build Client NeoForge
 
 on:
   push:
     paths:
-      - "client/**"
-      - ".github/workflows/build-client.yml"
+      - "client/common/**"
+      - "client/neoforge/**"
+      - "client/build.gradle"
+      - "client/settings.gradle"
+      - "client/gradle.properties"
+      - ".github/workflows/build-client-neoforge.yml"
   pull_request:
     paths:
-      - "client/**"
-      - ".github/workflows/build-client.yml"
+      - "client/common/**"
+      - "client/neoforge/**"
+      - "client/build.gradle"
+      - "client/settings.gradle"
+      - "client/gradle.properties"
+      - ".github/workflows/build-client-neoforge.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build-client:
-    name: Build client mods
+  build-client-neoforge:
+    name: Build NeoForge client mod
     runs-on: ubuntu-latest
 
     steps:
@@ -34,23 +42,14 @@ jobs:
         with:
           gradle-version: "8.8"
 
-      - name: Build client mods
-        run: gradle -p client clean :fabric:build :neoforge:build --no-daemon
+      - name: Build NeoForge client mod
+        run: gradle -p client clean :neoforge:build --no-daemon
 
-      - name: Prepare client artifacts
+      - name: Prepare NeoForge artifact
         shell: bash
         run: |
           mkdir -p dist
-          cp client/fabric/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
           cp client/neoforge/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_neoforge.jar
-
-      - name: Upload Fabric client mod
-        uses: actions/upload-artifact@v4
-        with:
-          name: ponderer_client_addon_1.0_mc1.21.1_fabric
-          path: dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
-          if-no-files-found: error
-          retention-days: 14
 
       - name: Upload NeoForge client mod
         uses: actions/upload-artifact@v4
