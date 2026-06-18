@@ -70,27 +70,27 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!config.isCommandRelayEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "command_relay"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("command_relay")));
             return true;
         }
         if (!config.isClientCommandAllowed(sub)) {
-            player.sendMessage(messages.get("feature_disabled", "client_command:" + sub));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("client_command:" + sub)));
             return true;
         }
         if (sub.equals("pull") && (!config.isSyncEnabled() || !permissions.canPull(player))) {
             player.sendMessage(!config.isSyncEnabled()
-                    ? messages.get("feature_disabled", "sync")
+                    ? messages.get("feature_disabled", messages.featureName("sync"))
                     : messages.get("no_pull_permission"));
             return true;
         }
         if (UPLOAD_CMDS.contains(sub) && (!config.isUploadEnabled() || !permissions.canUpload(player))) {
             player.sendMessage(!config.isUploadEnabled()
-                    ? messages.get("feature_disabled", "upload")
+                    ? messages.get("feature_disabled", messages.featureName("upload"))
                     : messages.get("no_upload_permission"));
             return true;
         }
         if (sub.equals("download") && !config.isStructureImportEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "structure_import"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("structure_import")));
             return true;
         }
         if (sub.equals("export") && !player.hasPermission(PermissionManager.PERM_PACK_EXPORT)) {
@@ -109,7 +109,7 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
 
     private void handleReport(Player player, String[] args) {
         if (!config.isReportsEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "reports"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("reports")));
             return;
         }
         if (!player.hasPermission(PermissionManager.PERM_REPORT)) {
@@ -117,7 +117,7 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            player.sendMessage(messages.get("invalid_usage", "/ponderer report <sceneId> [reason]"));
+            player.sendMessage(messages.get("invalid_usage", messages.get("usage_ponderer_report")));
             return;
         }
 
@@ -139,7 +139,7 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
 
     private void handleLock(Player player, String[] args, boolean lock) {
         if (!config.isLocksEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "locks"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("locks")));
             return;
         }
         if (!player.hasPermission(PermissionManager.PERM_LOCK)) {
@@ -147,7 +147,8 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            player.sendMessage(messages.get("invalid_usage", "/ponderer " + (lock ? "lock" : "unlock") + " <sceneId>"));
+            player.sendMessage(messages.get("invalid_usage",
+                    messages.get(lock ? "usage_ponderer_lock" : "usage_ponderer_unlock")));
             return;
         }
         String sceneId = resolveSceneArg(player, args[1]);
@@ -167,7 +168,7 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
 
     private void handleSubscribe(Player player, String[] args, boolean subscribe) {
         if (!config.isSubscriptionsEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "subscriptions"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("subscriptions")));
             return;
         }
         if (!permissions.canPull(player)) {
@@ -175,7 +176,8 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            player.sendMessage(messages.get("invalid_usage", "/ponderer " + (subscribe ? "subscribe" : "unsubscribe") + " <sceneId>"));
+            player.sendMessage(messages.get("invalid_usage",
+                    messages.get(subscribe ? "usage_ponderer_subscribe" : "usage_ponderer_unsubscribe")));
             return;
         }
         String sceneId = resolveSceneArg(player, args[1]);
@@ -191,11 +193,11 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
 
     private void handleVisibility(Player player, String[] args) {
         if (!config.isVisibilityEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "visibility"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("visibility")));
             return;
         }
         if (args.length < 3) {
-            player.sendMessage(messages.get("invalid_usage", "/ponderer visibility <sceneId> <public|private|group> [groups...]"));
+            player.sendMessage(messages.get("invalid_usage", messages.get("usage_ponderer_visibility")));
             return;
         }
         String sceneId = resolveSceneArg(player, args[1]);
@@ -207,11 +209,11 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
 
         String vis = args[2].toLowerCase();
         if (!vis.equals("public") && !vis.equals("private") && !vis.equals("group")) {
-            player.sendMessage(messages.get("invalid_usage", "/ponderer visibility <sceneId> <public|private|group> [groups...]"));
+            player.sendMessage(messages.get("invalid_usage", messages.get("usage_ponderer_visibility")));
             return;
         }
         if (vis.equals("group") && !config.isVisibilityGroupsEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "visibility_groups"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("visibility_groups")));
             return;
         }
 
@@ -271,7 +273,7 @@ public final class PondererCommand implements CommandExecutor, TabCompleter {
         if (!isHand(raw)) return raw;
         String sceneId = handSceneId(player);
         if (sceneId == null) {
-            player.sendMessage("\u00A7cYour main hand is empty.");
+            player.sendMessage(messages.get("hand_empty"));
         }
         return sceneId;
     }

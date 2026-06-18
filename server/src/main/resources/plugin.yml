@@ -2,62 +2,62 @@ name: PondererServer
 version: '1.0'
 main: com.ponderer.server.PondererPlugin
 api-version: '1.21'
-description: Server-side plugin for the Ponderer mod
+description: Ponderer 的服务端同步、上传、审核和管理插件
 authors: [ PondererServer ]
-depend: [ LuckPerms ]
+softdepend: [ LuckPerms ]
 
 commands:
   ponderer-admin:
-    description: Ponderer admin management commands
-    usage: /ponderer-admin <subcommand>
+    description: Ponderer 管理命令
+    usage: /ponderer-admin <子命令>
     permission: ponderer.admin
   ponderer:
-    description: Ponderer client commands (pull, push, new, list, etc.)
-    usage: /ponderer <subcommand>
+    description: Ponderer 客户端命令（pull、push、new、list 等）
+    usage: /ponderer <子命令>
 
 permissions:
   ponderer.pull:
-    description: Can pull scenes from the server
+    description: 允许从服务器拉取思索场景
     default: true
   ponderer.upload:
-    description: Can upload scenes to the server
+    description: 允许向服务器上传思索场景
     default: op
   ponderer.admin:
-    description: Can manage Ponderer permissions and settings
+    description: 允许管理 Ponderer 权限和设置
     default: op
   ponderer.create.region:
-    description: Can create region/coordinate-triggered scenes
+    description: 允许创建区域或坐标触发型思索场景
     default: op
   ponderer.blueprint:
-    description: Can use the blueprint tool
+    description: 允许使用蓝图工具
     default: op
   ponderer.pack.import:
-    description: Can import scene packs
+    description: 允许导入思索场景包
     default: op
   ponderer.pack.export:
-    description: Can export scene packs
+    description: 允许导出思索场景包
     default: op
   ponderer.ai.use_server_api:
-    description: Can use the server-provided AI API
+    description: 允许使用服务器提供的 AI API
     default: false
   ponderer.admin.topup:
-    description: Can top up a player's server AI API token balance
+    description: 允许为玩家充值服务器 AI API token
     default: op
   ponderer.report:
-    description: Can report scenes
+    description: 允许举报思索场景
     default: true
   ponderer.lock:
-    description: Can lock/unlock own scenes
+    description: 允许锁定或解锁自己的思索场景
     default: op
   ponderer.admin.review:
-    description: Can approve/reject scenes in review queue
+    description: 允许批准或拒绝审核队列中的思索场景
     default: op
   ponderer.admin.groups:
-    description: Can manage visibility groups
+    description: 允许管理可见性分组
     default: op
   ponderer.admin.collab:
-    description: Can manage scene collaborators
+    description: 允许管理思索场景协作者
     default: op
   ponderer.admin.reports:
-    description: Can manage scene reports
+    description: 允许管理思索场景举报
     default: op

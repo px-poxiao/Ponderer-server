@@ -46,7 +46,7 @@ public final class SyncHandler {
 
     public void handle(Player player) {
         if (!config.isSyncEnabled()) {
-            player.sendMessage(messages.get("feature_disabled", "sync"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("sync")));
             return;
         }
         if (!permissions.canPull(player)) {

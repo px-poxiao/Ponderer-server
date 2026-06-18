@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets;
 
 public final class MessageConfig {
 
+    private static MessageConfig current;
+
     private final Plugin plugin;
     private FileConfiguration cfg;
     private String prefix;
@@ -18,6 +20,7 @@ public final class MessageConfig {
     public MessageConfig(Plugin plugin) {
         this.plugin = plugin;
         load();
+        current = this;
     }
 
     public void reload() {
@@ -41,7 +44,7 @@ public final class MessageConfig {
                 cfg.save(file);
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to merge default messages.yml: " + e.getMessage());
+            plugin.getLogger().warning(get("log_messages_merge_failed", e.getMessage()));
         }
 
         this.prefix = color(cfg.getString("prefix", "&8[&bPonderer&8]&r"));
@@ -49,7 +52,27 @@ public final class MessageConfig {
 
     public String get(String key, Object... args) {
         String raw = cfg.getString(key, "&c[Missing message: " + key + "]");
-        raw = color(raw).replace("{prefix}", prefix);
+        raw = color(raw).replace("{prefix}", prefix == null ? "" : prefix);
+        for (int i = 0; i < args.length; i++) {
+            raw = raw.replace("{" + i + "}", String.valueOf(args[i]));
+        }
+        return raw;
+    }
+
+    public String featureName(String key) {
+        if (key != null && key.startsWith("client_command:")) {
+            return get("feature_name_client_command", key.substring("client_command:".length()));
+        }
+        String messageKey = "feature_name_" + String.valueOf(key).replaceAll("[^A-Za-z0-9_]", "_");
+        return cfg.isString(messageKey) ? get(messageKey) : String.valueOf(key);
+    }
+
+    public static String global(String key, Object... args) {
+        return current != null ? current.get(key, args) : fallback(key, args);
+    }
+
+    private static String fallback(String key, Object... args) {
+        String raw = "[Missing message: " + key + "]";
         for (int i = 0; i < args.length; i++) {
             raw = raw.replace("{" + i + "}", String.valueOf(args[i]));
         }

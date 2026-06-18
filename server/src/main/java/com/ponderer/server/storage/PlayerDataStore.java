@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -87,7 +88,7 @@ public final class PlayerDataStore {
             Map<String, PlayerData> map = GSON.fromJson(json, MAP_TYPE);
             return map != null ? map : new HashMap<>();
         } catch (IOException e) {
-            logger.warning("Failed to load player data: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_player_data_load_failed", e.getMessage()));
             return new HashMap<>();
         }
     }
@@ -97,7 +98,7 @@ public final class PlayerDataStore {
             Files.createDirectories(dataFile.getParent());
             Files.writeString(dataFile, GSON.toJson(data));
         } catch (IOException e) {
-            logger.warning("Failed to save player data: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_player_data_save_failed", e.getMessage()));
         }
     }
 

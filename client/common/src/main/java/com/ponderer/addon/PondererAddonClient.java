@@ -21,6 +21,7 @@ public final class PondererAddonClient {
         if (initialized) return;
         initialized = true;
 
+        PondererAddonMessages.load(configDir);
         PondererAddonConfig.load(configDir);
         if (PondererAddonConfig.isFileWatcherEnabled()) {
             FileWatcherService.start();
@@ -39,7 +40,7 @@ public final class PondererAddonClient {
     public static void requestFromServer(String systemPrompt, String userContent,
                                          Consumer<String> onSuccess, Consumer<String> onError) {
         if (network == null) {
-            onError.accept("Ponderer Client Addon networking is not initialized.");
+            onError.accept(PondererAddonMessages.get("client.network_not_initialized"));
             return;
         }
 

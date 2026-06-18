@@ -84,8 +84,8 @@ public final class FileWatcherService {
         if (mc.level == null) return;
         SystemToast.addOrUpdate(mc.getToasts(),
                 SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
-                Component.literal("Ponderer"),
-                Component.literal("Scene files changed. Use /ponderer push to upload."));
+                Component.literal(PondererAddonMessages.get("toast.title")),
+                Component.literal(PondererAddonMessages.get("toast.file_changed")));
     }
 
     private static Path getSceneDir() {

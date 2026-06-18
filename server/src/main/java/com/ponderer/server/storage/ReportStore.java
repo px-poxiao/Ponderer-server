@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -59,11 +60,11 @@ public final class ReportStore {
     private Map<String, ReportEntry> load() {
         if (!Files.exists(dataFile)) return new HashMap<>();
         try { Map<String, ReportEntry> m = GSON.fromJson(Files.readString(dataFile), MAP_TYPE); return m != null ? m : new HashMap<>(); }
-        catch (IOException e) { logger.warning("Failed to load reports: " + e.getMessage()); return new HashMap<>(); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_reports_load_failed", e.getMessage())); return new HashMap<>(); }
     }
 
     private void save() {
         try { Files.createDirectories(dataFile.getParent()); Files.writeString(dataFile, GSON.toJson(data)); }
-        catch (IOException e) { logger.warning("Failed to save reports: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_reports_save_failed", e.getMessage())); }
     }
 }

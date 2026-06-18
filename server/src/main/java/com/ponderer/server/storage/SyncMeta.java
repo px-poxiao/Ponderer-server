@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -59,7 +60,7 @@ public final class SyncMeta {
             Map<String, String> map = GSON.fromJson(json, MAP_TYPE);
             return map != null ? map : new HashMap<>();
         } catch (IOException e) {
-            logger.warning("Failed to load sync hashes: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_sync_hashes_load_failed", e.getMessage()));
             return new HashMap<>();
         }
     }
@@ -69,7 +70,7 @@ public final class SyncMeta {
             Files.createDirectories(metaFile.getParent());
             Files.writeString(metaFile, GSON.toJson(hashes));
         } catch (IOException e) {
-            logger.warning("Failed to save sync hashes: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_sync_hashes_save_failed", e.getMessage()));
         }
     }
 }

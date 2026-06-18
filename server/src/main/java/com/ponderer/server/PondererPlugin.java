@@ -54,14 +54,7 @@ public final class PondererPlugin extends JavaPlugin {
         SceneAccessStore accessStore    = new SceneAccessStore(worldRoot, getLogger());
         PushCooldownStore pushCooldown  = new PushCooldownStore();
 
-        PermissionManager permissions;
-        try {
-            permissions = new PermissionManager(getServer().getServicesManager(), getLogger());
-        } catch (IllegalStateException e) {
-            getLogger().severe("LuckPerms not found! Disabling Ponderer plugin.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+        PermissionManager permissions = new PermissionManager(getServer().getServicesManager(), getLogger());
 
         RateLimiter rateLimiter = new RateLimiter(config.getUploadsPerHour());
 
@@ -74,7 +67,7 @@ public final class PondererPlugin extends JavaPlugin {
                 collabStore, reviewStore, lockStore, pushCooldown, subscriptions);
 
         // ReviewAiService — set via setter to avoid circular dependency
-        ReviewAiService reviewAi = new ReviewAiService(config, reviewStore, uploadHandler, this, getLogger());
+        ReviewAiService reviewAi = new ReviewAiService(config, reviewStore, uploadHandler, messages, this, getLogger());
         uploadHandler.setReviewAi(reviewAi);
 
         DownloadStructureHandler downloadHandler = new DownloadStructureHandler(sceneStore, permissions, messages, config, this, syncHandler);
@@ -110,7 +103,7 @@ public final class PondererPlugin extends JavaPlugin {
         new ScheduledBackupService(worldRoot, this, config, getLogger()).start();
         new ExpiryService(accessStore, sceneStore, config, worldRoot, this, getLogger()).start();
 
-        getLogger().info("PondererServer enabled. World root: " + worldRoot);
+        getLogger().info(messages.get("log_plugin_enabled", worldRoot));
     }
 
     private void registerChannels(PacketListener listener) {
@@ -130,6 +123,6 @@ public final class PondererPlugin extends JavaPlugin {
     public void onDisable() {
         getServer().getMessenger().unregisterIncomingPluginChannel(this);
         getServer().getMessenger().unregisterOutgoingPluginChannel(this);
-        getLogger().info("PondererServer disabled.");
+        getLogger().info(MessageConfig.global("log_plugin_disabled"));
     }
 }

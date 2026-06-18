@@ -70,7 +70,7 @@ public final class UploadHandler {
     public void handle(Player player, UploadScenePacket packet) {
         if (!config.isUploadEnabled()) {
             send(player, response(packet, "disabled"));
-            player.sendMessage(messages.get("feature_disabled", "upload"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("upload")));
             return;
         }
 

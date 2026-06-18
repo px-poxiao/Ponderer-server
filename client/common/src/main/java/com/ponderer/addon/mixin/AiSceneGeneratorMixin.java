@@ -2,6 +2,7 @@ package com.ponderer.addon.mixin;
 
 import com.ponderer.addon.PondererAddonClient;
 import com.ponderer.addon.PondererAddonConfig;
+import com.ponderer.addon.PondererAddonMessages;
 import com.ponderer.addon.PondererConfigAccess;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,7 +43,7 @@ public class AiSceneGeneratorMixin {
         if (!PondererAddonConfig.isServerAiProxyEnabled() || !PondererConfigAccess.getApiKey().isEmpty()) return;
 
         ci.cancel();
-        onStatus.accept("Connecting to server AI...");
+        onStatus.accept(PondererAddonMessages.get("client.ai_status_connecting"));
 
         StringBuilder userContent = new StringBuilder();
         userContent.append("Target item: ").append(carrierItemId).append("\n");
@@ -92,10 +93,11 @@ public class AiSceneGeneratorMixin {
                     reloadScenes();
                     onSuccess.accept(outPath.toString());
                 } catch (Exception e) {
-                    onError.accept("Failed to save AI result: " + e.getMessage());
+                    onError.accept(PondererAddonMessages.get("client.ai_save_failed", e.getMessage()));
                 }
             }),
-            error -> Minecraft.getInstance().execute(() -> onError.accept("Server AI error: " + error))
+            error -> Minecraft.getInstance().execute(() ->
+                    onError.accept(PondererAddonMessages.get("client.ai_server_error", error)))
         );
     }
 
@@ -119,7 +121,7 @@ public class AiSceneGeneratorMixin {
     private static void validateJson(String json) {
         com.google.gson.JsonElement element = com.google.gson.JsonParser.parseString(json);
         if (element == null || !element.isJsonObject()) {
-            throw new IllegalArgumentException("AI response is not a JSON object");
+            throw new IllegalArgumentException(PondererAddonMessages.get("client.ai_invalid_json"));
         }
     }
 

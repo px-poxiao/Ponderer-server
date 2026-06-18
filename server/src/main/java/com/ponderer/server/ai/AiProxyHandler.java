@@ -42,7 +42,7 @@ public final class AiProxyHandler {
 
     public void handle(Player player, AiRequestPacket packet) {
         if (!config.isServerAiEnabled()) {
-            sendError(player, packet.requestId(), messages.get("feature_disabled", "server_ai"));
+            sendError(player, packet.requestId(), messages.get("feature_disabled", messages.featureName("server_ai")));
             return;
         }
         if (!permissions.canUseServerApi(player)) {
@@ -79,7 +79,7 @@ public final class AiProxyHandler {
                 config.getAiMaxTokens()
         ).whenComplete((result, err) -> {
             if (err != null) {
-                logger.warning("[Ponderer] AI call failed for " + player.getName() + ": " + err.getMessage());
+                logger.warning(MessageConfig.global("log_ai_call_failed", player.getName(), err.getMessage()));
                 plugin.getServer().getScheduler().runTask(plugin,
                         () -> sendError(player, packet.requestId(), messages.get("ai_call_failed", err.getMessage())));
                 return;

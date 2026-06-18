@@ -1,5 +1,7 @@
 package com.ponderer.server.stats;
 
+import com.ponderer.server.config.MessageConfig;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.StandardOpenOption;
@@ -42,7 +44,7 @@ public final class StatsTracker {
             Files.createDirectories(logFile.getParent());
             Files.writeString(logFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
-            logger.warning("[Ponderer] Failed to write activity log: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_activity_write_failed", e.getMessage()));
         }
     }
 }

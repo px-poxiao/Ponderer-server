@@ -18,7 +18,7 @@ public final class ClientCommandDispatcher {
 
         String name = parts[0].toLowerCase();
         if (!PondererAddonConfig.isClientCommandAllowed(name)) {
-            notifyClient("Ponderer command is disabled locally: " + name);
+            notifyClient(PondererAddonMessages.get("client.command_disabled", name));
             return;
         }
 
@@ -78,10 +78,10 @@ public final class ClientCommandDispatcher {
                         invokeCommand("unregisterPack", nameArg);
                     }
                 }
-                default -> notifyClient("Unknown Ponderer client command: " + name);
+                default -> notifyClient(PondererAddonMessages.get("client.unknown_command", name));
             }
         } catch (Exception e) {
-            notifyClient("Ponderer client command failed: " + command + " (" + rootMessage(e) + ")");
+            notifyClient(PondererAddonMessages.get("client.command_failed", command, rootMessage(e)));
         }
     }
 
@@ -103,13 +103,13 @@ public final class ClientCommandDispatcher {
         try {
             Object match = PondererReflection.findSceneById(sceneId);
             if (match == null) {
-                notifyClient("Ponderer scene not found locally: " + sceneId);
+                notifyClient(PondererAddonMessages.get("client.scene_not_found", sceneId));
                 return;
             }
 
             Object scene = PondererReflection.scene(match);
             if (!PondererReflection.canModifyScene(scene)) {
-                notifyClient("Ponderer scene cannot be edited: " + sceneId);
+                notifyClient(PondererAddonMessages.get("client.scene_not_editable", sceneId));
                 return;
             }
 
@@ -118,7 +118,7 @@ public final class ClientCommandDispatcher {
                 Minecraft.getInstance().setScreen(editor);
             }
         } catch (ReflectiveOperationException e) {
-            notifyClient("Ponderer editor failed to open: " + rootMessage(e));
+            notifyClient(PondererAddonMessages.get("client.editor_open_failed", rootMessage(e)));
         }
     }
 

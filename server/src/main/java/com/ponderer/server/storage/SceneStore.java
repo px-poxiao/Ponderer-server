@@ -1,5 +1,6 @@
 package com.ponderer.server.storage;
 
+import com.ponderer.server.config.MessageConfig;
 import com.ponderer.server.network.packets.SyncResponsePacket;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public final class SceneStore {
             Files.writeString(path, json);
             return true;
         } catch (IOException e) {
-            logger.warning("Failed to write scene " + sceneId + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_scene_write_failed", sceneId, e.getMessage()));
             return false;
         }
     }
@@ -54,7 +55,7 @@ public final class SceneStore {
             Files.write(path, bytes);
             return true;
         } catch (IOException e) {
-            logger.warning("Failed to write structure " + structureId + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_structure_write_failed", structureId, e.getMessage()));
             return false;
         }
     }
@@ -80,7 +81,7 @@ public final class SceneStore {
         try {
             return Files.deleteIfExists(path);
         } catch (IOException e) {
-            logger.warning("Failed to delete scene " + sceneId + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_scene_delete_failed", sceneId, e.getMessage()));
             return false;
         }
     }
@@ -125,7 +126,7 @@ public final class SceneStore {
                 }
             });
         } catch (IOException e) {
-            logger.warning("Failed to collect files from " + root + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_collect_files_failed", root, e.getMessage()));
         }
         return entries;
     }

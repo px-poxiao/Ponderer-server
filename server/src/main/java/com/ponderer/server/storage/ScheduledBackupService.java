@@ -1,5 +1,6 @@
 package com.ponderer.server.storage;
 
+import com.ponderer.server.config.MessageConfig;
 import com.ponderer.server.config.PluginConfig;
 import org.bukkit.plugin.Plugin;
 
@@ -32,7 +33,7 @@ public final class ScheduledBackupService {
         if (!config.isScheduledBackupEnabled()) return;
         long intervalTicks = (long) config.getScheduledBackupIntervalHours() * 72000L;
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this::runBackup, intervalTicks, intervalTicks);
-        logger.info("Scheduled backup enabled every " + config.getScheduledBackupIntervalHours() + " hour(s).");
+        logger.info(MessageConfig.global("log_scheduled_backup_enabled", config.getScheduledBackupIntervalHours()));
     }
 
     private void runBackup() {
@@ -47,9 +48,9 @@ public final class ScheduledBackupService {
                  ZipOutputStream zos = new ZipOutputStream(fos)) {
                 zipDirectory(pondererDir, pondererDir, outDir, zos);
             }
-            logger.info("Full backup created: " + zipPath.getFileName());
+            logger.info(MessageConfig.global("log_full_backup_created", zipPath.getFileName()));
         } catch (IOException e) {
-            logger.warning("Scheduled backup failed: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_scheduled_backup_failed", e.getMessage()));
         }
     }
 

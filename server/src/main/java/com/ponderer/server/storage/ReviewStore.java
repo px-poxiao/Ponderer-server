@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -76,11 +77,11 @@ public final class ReviewStore {
         try {
             Map<String, ReviewEntry> map = GSON.fromJson(Files.readString(dataFile), MAP_TYPE);
             return map != null ? map : new HashMap<>();
-        } catch (IOException e) { logger.warning("Failed to load review queue: " + e.getMessage()); return new HashMap<>(); }
+        } catch (IOException e) { logger.warning(MessageConfig.global("log_review_queue_load_failed", e.getMessage())); return new HashMap<>(); }
     }
 
     private void save() {
         try { Files.createDirectories(dataFile.getParent()); Files.writeString(dataFile, GSON.toJson(queue)); }
-        catch (IOException e) { logger.warning("Failed to save review queue: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_review_queue_save_failed", e.getMessage())); }
     }
 }

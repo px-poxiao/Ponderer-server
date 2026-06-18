@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -62,16 +63,16 @@ public final class SubscriptionStore {
     private Map<String, List<String>> loadFile(Path path) {
         if (!Files.exists(path)) return new HashMap<>();
         try { Map<String, List<String>> m = GSON.fromJson(Files.readString(path), LIST_MAP_TYPE); return m != null ? m : new HashMap<>(); }
-        catch (IOException e) { logger.warning("Failed to load " + path.getFileName() + ": " + e.getMessage()); return new HashMap<>(); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_file_load_failed", path.getFileName(), e.getMessage())); return new HashMap<>(); }
     }
 
     private void saveSub() {
         try { Files.createDirectories(subFile.getParent()); Files.writeString(subFile, GSON.toJson(subscriptions)); }
-        catch (IOException e) { logger.warning("Failed to save subscriptions: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_subscriptions_save_failed", e.getMessage())); }
     }
 
     private void saveNotif() {
         try { Files.createDirectories(notifFile.getParent()); Files.writeString(notifFile, GSON.toJson(pendingNotifs)); }
-        catch (IOException e) { logger.warning("Failed to save notifications: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_notifications_save_failed", e.getMessage())); }
     }
 }

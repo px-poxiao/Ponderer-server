@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -59,7 +60,7 @@ public final class SceneOwnerStore {
             Map<String, String> map = GSON.fromJson(Files.readString(dataFile), MAP_TYPE);
             return map != null ? map : new HashMap<>();
         } catch (IOException e) {
-            logger.warning("Failed to load scene owners: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_scene_owners_load_failed", e.getMessage()));
             return new HashMap<>();
         }
     }
@@ -69,7 +70,7 @@ public final class SceneOwnerStore {
             Files.createDirectories(dataFile.getParent());
             Files.writeString(dataFile, GSON.toJson(owners));
         } catch (IOException e) {
-            logger.warning("Failed to save scene owners: " + e.getMessage());
+            logger.warning(MessageConfig.global("log_scene_owners_save_failed", e.getMessage()));
         }
     }
 }

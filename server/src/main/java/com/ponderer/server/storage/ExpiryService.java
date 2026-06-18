@@ -1,5 +1,6 @@
 package com.ponderer.server.storage;
 
+import com.ponderer.server.config.MessageConfig;
 import com.ponderer.server.config.PluginConfig;
 import org.bukkit.plugin.Plugin;
 
@@ -35,7 +36,7 @@ public final class ExpiryService {
         if (!config.isExpiryEnabled()) return;
         long dayTicks = 24L * 72000L;
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this::runExpiry, dayTicks, dayTicks);
-        logger.info("Scene expiry enabled: scenes not pulled in " + config.getExpiryDays() + " day(s) will be archived.");
+        logger.info(MessageConfig.global("log_expiry_enabled", config.getExpiryDays()));
     }
 
     private void runExpiry() {
@@ -56,9 +57,9 @@ public final class ExpiryService {
                 Files.write(dest, bytes);
                 sceneStore.deleteScene(sceneId);
                 accessStore.remove(sceneId);
-                logger.info("Archived expired scene: " + sceneId);
+                logger.info(MessageConfig.global("log_expiry_archived", sceneId));
             } catch (IOException e) {
-                logger.warning("Failed to archive scene " + sceneId + ": " + e.getMessage());
+                logger.warning(MessageConfig.global("log_expiry_archive_failed", sceneId, e.getMessage()));
             }
         }
     }

@@ -1,0 +1,18 @@
+# Ponderer 客户端附加包消息
+# 支持 {0}、{1} 这样的占位符。修改后重启客户端生效。
+
+config.header: "Ponderer 客户端附加包配置"
+toast.title: "Ponderer"
+toast.file_changed: "思索场景文件已变更。使用 /ponderer push 上传。"
+button.edit: "编辑"
+client.network_not_initialized: "Ponderer 客户端附加包网络尚未初始化。"
+client.command_disabled: "本地配置已禁用 Ponderer 命令：{0}"
+client.unknown_command: "未知的 Ponderer 客户端命令：{0}"
+client.command_failed: "Ponderer 客户端命令执行失败：{0}（{1}）"
+client.scene_not_found: "本地找不到 Ponderer 思索场景：{0}"
+client.scene_not_editable: "无法编辑该 Ponderer 思索场景：{0}"
+client.editor_open_failed: "Ponderer 编辑器打开失败：{0}"
+client.ai_status_connecting: "正在连接服务器 AI..."
+client.ai_save_failed: "保存 AI 结果失败：{0}"
+client.ai_server_error: "服务器 AI 出错：{0}"
+client.ai_invalid_json: "AI 返回内容不是 JSON 对象"

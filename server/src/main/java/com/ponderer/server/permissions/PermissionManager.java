@@ -1,14 +1,14 @@
 package com.ponderer.server.permissions;
 
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.Node;
-import net.luckperms.api.node.types.MetaNode;
+import com.ponderer.server.config.MessageConfig;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.ServicesManager;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 public final class PermissionManager {
@@ -33,14 +33,21 @@ public final class PermissionManager {
     // Meta keys
     public static final String META_UPLOAD_LIMIT     = "ponderer-upload-limit";
 
-    private final LuckPerms luckPerms;
+    private final Object luckPerms;
     private final Logger logger;
 
     public PermissionManager(ServicesManager services, Logger logger) {
-        RegisteredServiceProvider<LuckPerms> provider = services.getRegistration(LuckPerms.class);
-        if (provider == null) throw new IllegalStateException("LuckPerms not found");
-        this.luckPerms = provider.getProvider();
         this.logger = logger;
+        this.luckPerms = findLuckPerms(services);
+        if (luckPerms == null) {
+            logger.info(MessageConfig.global("log_luckperms_missing"));
+        } else {
+            logger.info(MessageConfig.global("log_luckperms_found"));
+        }
+    }
+
+    public boolean hasLuckPerms() {
+        return luckPerms != null;
     }
 
     public boolean canPull(Player player) {
@@ -73,35 +80,126 @@ public final class PermissionManager {
 
     /** Returns -1 for unlimited, 0 if no meta set (use server default). */
     public int getUploadLimit(UUID uuid) {
-        User user = luckPerms.getUserManager().getUser(uuid);
-        if (user == null) return 0;
-        String raw = user.getCachedData().getMetaData().getMetaValue(META_UPLOAD_LIMIT);
-        if (raw == null) return 0;
-        try { return Integer.parseInt(raw); } catch (NumberFormatException e) { return 0; }
+        if (luckPerms == null) return 0;
+        try {
+            Object userManager = invoke(luckPerms, "getUserManager");
+            Object user = invoke(userManager, "getUser", uuid);
+            if (user == null) return 0;
+            Object cachedData = invoke(user, "getCachedData");
+            Object metaData = invoke(cachedData, "getMetaData");
+            Object raw = invoke(metaData, "getMetaValue", META_UPLOAD_LIMIT);
+            if (!(raw instanceof String value)) return 0;
+            try { return Integer.parseInt(value); } catch (NumberFormatException e) { return 0; }
+        } catch (ReflectiveOperationException e) {
+            logger.warning(MessageConfig.global("log_luckperms_upload_limit_read_failed", uuid, e.getMessage()));
+            return 0;
+        }
     }
 
-    public void setUploadLimit(UUID uuid, int limit) {
-        luckPerms.getUserManager().loadUser(uuid).thenAccept(user -> {
-            if (user == null) return;
-            user.data().clear(n -> n instanceof MetaNode mn && META_UPLOAD_LIMIT.equals(mn.getMetaKey()));
-            user.data().add(MetaNode.builder(META_UPLOAD_LIMIT, String.valueOf(limit)).build());
-            luckPerms.getUserManager().saveUser(user);
+    public boolean setUploadLimit(UUID uuid, int limit) {
+        if (luckPerms == null) return false;
+        withLoadedLuckPermsUser(uuid, user -> {
+            Object data = invoke(user, "data");
+            clearUploadLimitMeta(data);
+            addNode(data, buildMetaNode(META_UPLOAD_LIMIT, String.valueOf(limit)));
         });
+        return true;
     }
 
-    public void grantPermission(UUID uuid, String permission) {
-        luckPerms.getUserManager().loadUser(uuid).thenAccept(user -> {
-            if (user == null) return;
-            user.data().add(Node.builder(permission).build());
-            luckPerms.getUserManager().saveUser(user);
-        });
+    public boolean grantPermission(UUID uuid, String permission) {
+        if (luckPerms == null) return false;
+        withLoadedLuckPermsUser(uuid, user -> addNode(invoke(user, "data"), buildPermissionNode(permission)));
+        return true;
     }
 
-    public void revokePermission(UUID uuid, String permission) {
-        luckPerms.getUserManager().loadUser(uuid).thenAccept(user -> {
-            if (user == null) return;
-            user.data().remove(Node.builder(permission).build());
-            luckPerms.getUserManager().saveUser(user);
-        });
+    public boolean revokePermission(UUID uuid, String permission) {
+        if (luckPerms == null) return false;
+        withLoadedLuckPermsUser(uuid, user -> removeNode(invoke(user, "data"), buildPermissionNode(permission)));
+        return true;
+    }
+
+    private Object findLuckPerms(ServicesManager services) {
+        try {
+            Class<?> luckPermsClass = Class.forName("net.luckperms.api.LuckPerms");
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            RegisteredServiceProvider<?> provider = services.getRegistration((Class) luckPermsClass);
+            return provider == null ? null : provider.getProvider();
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    private void withLoadedLuckPermsUser(UUID uuid, LuckPermsUserAction action) {
+        try {
+            Object userManager = invoke(luckPerms, "getUserManager");
+            @SuppressWarnings("unchecked")
+            CompletionStage<Object> stage = (CompletionStage<Object>) invoke(userManager, "loadUser", uuid);
+            stage.thenAccept(user -> {
+                if (user == null) return;
+                try {
+                    action.accept(user);
+                    invoke(userManager, "saveUser", user);
+                } catch (ReflectiveOperationException e) {
+                    logger.warning(MessageConfig.global("log_luckperms_user_update_failed", uuid, e.getMessage()));
+                }
+            });
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            logger.warning(MessageConfig.global("log_luckperms_user_load_failed", uuid, e.getMessage()));
+        }
+    }
+
+    private Object buildPermissionNode(String permission) throws ReflectiveOperationException {
+        Class<?> nodeClass = Class.forName("net.luckperms.api.node.Node");
+        Object builder = nodeClass.getMethod("builder", String.class).invoke(null, permission);
+        return invoke(builder, "build");
+    }
+
+    private Object buildMetaNode(String key, String value) throws ReflectiveOperationException {
+        Class<?> metaNodeClass = Class.forName("net.luckperms.api.node.types.MetaNode");
+        Object builder = metaNodeClass.getMethod("builder", String.class, String.class).invoke(null, key, value);
+        return invoke(builder, "build");
+    }
+
+    private void clearUploadLimitMeta(Object data) throws ReflectiveOperationException {
+        Predicate<Object> uploadLimitMeta = node -> {
+            try {
+                Class<?> metaNodeClass = Class.forName("net.luckperms.api.node.types.MetaNode");
+                return metaNodeClass.isInstance(node) && META_UPLOAD_LIMIT.equals(invoke(node, "getMetaKey"));
+            } catch (ReflectiveOperationException e) {
+                return false;
+            }
+        };
+        invoke(data, "clear", uploadLimitMeta);
+    }
+
+    private void addNode(Object data, Object node) throws ReflectiveOperationException {
+        invoke(data, "add", node);
+    }
+
+    private void removeNode(Object data, Object node) throws ReflectiveOperationException {
+        invoke(data, "remove", node);
+    }
+
+    private static Object invoke(Object target, String name, Object... args) throws ReflectiveOperationException {
+        Method method = findMethod(target.getClass(), name, args.length);
+        return method.invoke(target, args);
+    }
+
+    private static Method findMethod(Class<?> type, String name, int argCount) throws NoSuchMethodException {
+        Class<?> current = type;
+        while (current != null) {
+            for (Method method : current.getMethods()) {
+                if (method.getName().equals(name) && method.getParameterCount() == argCount) {
+                    return method;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        throw new NoSuchMethodException(type.getName() + "." + name + "/" + argCount);
+    }
+
+    @FunctionalInterface
+    private interface LuckPermsUserAction {
+        void accept(Object user) throws ReflectiveOperationException;
     }
 }

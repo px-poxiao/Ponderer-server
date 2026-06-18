@@ -7,11 +7,11 @@ import com.ponderer.server.permissions.PermissionManager;
 import com.ponderer.server.stats.StatsTracker;
 import com.ponderer.server.storage.BackupManager;
 import com.ponderer.server.storage.CollabStore;
+import com.ponderer.server.storage.PlayerDataStore;
 import com.ponderer.server.storage.ReportStore;
 import com.ponderer.server.storage.ReviewStore;
 import com.ponderer.server.storage.SceneStore;
 import com.ponderer.server.storage.VisibilityStore;
-import com.ponderer.server.storage.PlayerDataStore;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -106,7 +106,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleTopup(CommandSender sender, String[] args) {
         if (!config.isServerAiEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "server_ai"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("server_ai")));
             return;
         }
         if (!sender.hasPermission(PermissionManager.PERM_ADMIN_TOPUP)) {
@@ -114,7 +114,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin topup <player> <amount>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_topup")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -135,7 +135,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleSetTokens(CommandSender sender, String[] args) {
         if (!config.isServerAiEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "server_ai"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("server_ai")));
             return;
         }
         if (!sender.hasPermission(PermissionManager.PERM_ADMIN_TOPUP)) {
@@ -143,7 +143,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin settokens <player> <amount>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_settokens")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -160,11 +160,11 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleTokens(CommandSender sender, String[] args) {
         if (!config.isServerAiEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "server_ai"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("server_ai")));
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin tokens <player>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_tokens")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -178,11 +178,11 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleSetLimit(CommandSender sender, String[] args) {
         if (!config.isPermissionAdminEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "permission_admin"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("permission_admin")));
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin setlimit <player> <limit>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_setlimit")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -197,17 +197,21 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             sender.sendMessage(messages.get("admin_invalid_limit"));
             return;
         }
-        permissions.setUploadLimit(target, limit);
-        sender.sendMessage(messages.get("admin_setlimit_success", args[1], limit < 0 ? "unlimited" : limit));
+        if (!permissions.setUploadLimit(target, limit)) {
+            sender.sendMessage(messages.get("admin_luckperms_meta_unavailable"));
+            return;
+        }
+        sender.sendMessage(messages.get("admin_setlimit_success", args[1],
+                limit < 0 ? messages.get("admin_unlimited") : limit));
     }
 
     private void handleResetCount(CommandSender sender, String[] args) {
         if (!config.isPlayerStatsEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "player_stats"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("player_stats")));
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin resetcount <player>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_resetcount")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -221,11 +225,11 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleStats(CommandSender sender, String[] args) {
         if (!config.isPlayerStatsEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "player_stats"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("player_stats")));
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin stats <player>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_stats")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -246,11 +250,11 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleGrant(CommandSender sender, String[] args) {
         if (!config.isPermissionAdminEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "permission_admin"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("permission_admin")));
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin grant <player> <permission>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_grant")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -258,17 +262,20 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             sender.sendMessage(messages.get("admin_player_not_found", args[1]));
             return;
         }
-        permissions.grantPermission(target, args[2]);
+        if (!permissions.grantPermission(target, args[2])) {
+            sender.sendMessage(messages.get("admin_luckperms_permission_unavailable"));
+            return;
+        }
         sender.sendMessage(messages.get("admin_grant_success", args[1], args[2]));
     }
 
     private void handleRevoke(CommandSender sender, String[] args) {
         if (!config.isPermissionAdminEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "permission_admin"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("permission_admin")));
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin revoke <player> <permission>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_revoke")));
             return;
         }
         UUID target = resolveUuid(args[1]);
@@ -276,7 +283,10 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             sender.sendMessage(messages.get("admin_player_not_found", args[1]));
             return;
         }
-        permissions.revokePermission(target, args[2]);
+        if (!permissions.revokePermission(target, args[2])) {
+            sender.sendMessage(messages.get("admin_luckperms_permission_unavailable"));
+            return;
+        }
         sender.sendMessage(messages.get("admin_revoke_success", args[1], args[2]));
     }
 
@@ -289,7 +299,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void handleReview(CommandSender sender, String[] args) {
         if (!config.isReviewEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "review"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("review")));
             return;
         }
         if (!sender.hasPermission(PermissionManager.PERM_ADMIN_REVIEW)) {
@@ -297,7 +307,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin review <list|approve|reject> [id] [reason]"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_review")));
             return;
         }
         switch (args[1].toLowerCase()) {
@@ -309,12 +319,13 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                 }
                 sender.sendMessage(messages.get("review_list_header", pending.size()));
                 for (var e : pending) {
-                    sender.sendMessage("\u00A7f" + e.sceneId + " \u00A77- " + e.ownerUuid + " - " + DT.format(Instant.ofEpochMilli(e.submittedAt)));
+                    sender.sendMessage(messages.get("review_list_entry",
+                            e.sceneId, e.ownerUuid, DT.format(Instant.ofEpochMilli(e.submittedAt))));
                 }
             }
             case "approve" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin review approve <id>"));
+                    sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_review_approve")));
                     return;
                 }
                 String sceneId = args[2];
@@ -332,11 +343,13 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             }
             case "reject" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin review reject <id> [reason]"));
+                    sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_review_reject")));
                     return;
                 }
                 String sceneId = args[2];
-                String reason = args.length > 3 ? String.join(" ", Arrays.copyOfRange(args, 3, args.length)) : "Rejected by an administrator";
+                String reason = args.length > 3
+                        ? String.join(" ", Arrays.copyOfRange(args, 3, args.length))
+                        : messages.get("admin_reject_default_reason");
                 ReviewStore.ReviewEntry entry = reviewStore.getEntry(sceneId);
                 if (entry == null) {
                     sender.sendMessage(messages.get("review_not_found", sceneId));
@@ -349,13 +362,13 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                 }
                 sender.sendMessage(messages.get("review_rejected", sceneId, reason));
             }
-            default -> sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin review <list|approve|reject>"));
+            default -> sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_review")));
         }
     }
 
     private void handleGroup(CommandSender sender, String[] args) {
         if (!config.isVisibilityEnabled() || !config.isVisibilityGroupsEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "visibility_groups"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("visibility_groups")));
             return;
         }
         if (!sender.hasPermission(PermissionManager.PERM_ADMIN_GROUPS)) {
@@ -363,7 +376,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin group <create|delete|addplayer|removeplayer|list> <name> [player]"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_group")));
             return;
         }
         String sub = args[1].toLowerCase();
@@ -379,7 +392,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             }
             case "addplayer" -> {
                 if (args.length < 4) {
-                    sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin group addplayer <group> <player>"));
+                    sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_group_addplayer")));
                     return;
                 }
                 UUID target = resolveUuid(args[3]);
@@ -392,7 +405,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             }
             case "removeplayer" -> {
                 if (args.length < 4) {
-                    sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin group removeplayer <group> <player>"));
+                    sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_group_removeplayer")));
                     return;
                 }
                 UUID target = resolveUuid(args[3]);
@@ -406,15 +419,15 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             case "list" -> {
                 List<String> members = visibilityStore.getGroupMembers(groupName);
                 sender.sendMessage(messages.get("group_members_header", groupName, members.size()));
-                members.forEach(m -> sender.sendMessage("\u00A77- \u00A7f" + m));
+                members.forEach(m -> sender.sendMessage(messages.get("list_entry", m)));
             }
-            default -> sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin group <create|delete|addplayer|removeplayer|list>"));
+            default -> sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_group")));
         }
     }
 
     private void handleCollab(CommandSender sender, String[] args) {
         if (!config.isCollaborationEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "collaboration"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("collaboration")));
             return;
         }
         if (!sender.hasPermission(PermissionManager.PERM_ADMIN_COLLAB)) {
@@ -422,7 +435,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             return;
         }
         if (args.length < 4) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin collab <add-scene|remove-scene|add-global|remove-global> <scene/owner> <player>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_collab")));
             return;
         }
         String sub = args[1].toLowerCase();
@@ -473,13 +486,13 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                 collabStore.removeGlobalCollab(owner, collab);
                 sender.sendMessage(messages.get("collab_global_removed", args[3], args[2]));
             }
-            default -> sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin collab <add-scene|remove-scene|add-global|remove-global>"));
+            default -> sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_collab")));
         }
     }
 
     private void handleReports(CommandSender sender, String[] args) {
         if (!config.isReportsEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "reports"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("reports")));
             return;
         }
         if (!sender.hasPermission(PermissionManager.PERM_ADMIN_REPORTS)) {
@@ -487,7 +500,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin reports <list|dismiss> [id]"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_reports")));
             return;
         }
         switch (args[1].toLowerCase()) {
@@ -499,28 +512,28 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                 }
                 sender.sendMessage(messages.get("reports_list_header", flagged.size()));
                 for (String id : flagged) {
-                    sender.sendMessage("\u00A7f" + id + " \u00A77(" + reportStore.getReportCount(id) + " report(s))");
+                    sender.sendMessage(messages.get("reports_list_entry", id, reportStore.getReportCount(id)));
                 }
             }
             case "dismiss" -> {
                 if (args.length < 3) {
-                    sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin reports dismiss <id>"));
+                    sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_reports_dismiss")));
                     return;
                 }
                 reportStore.dismiss(args[2]);
                 sender.sendMessage(messages.get("reports_dismissed", args[2]));
             }
-            default -> sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin reports <list|dismiss>"));
+            default -> sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_reports")));
         }
     }
 
     private void handleHistory(CommandSender sender, String[] args) {
         if (!config.isHistoryEnabled() || !config.isBackupsEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "history"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("history")));
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin history <sceneId>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_history")));
             return;
         }
         String sceneId = args[1];
@@ -539,19 +552,19 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                 return;
             }
             sender.sendMessage(messages.get("history_header", sceneId, files.size()));
-            files.forEach(f -> sender.sendMessage("\u00A77- \u00A7f" + f.replace(".json", "")));
+            files.forEach(f -> sender.sendMessage(messages.get("list_entry", f.replace(".json", ""))));
         } catch (IOException e) {
-            sender.sendMessage("\u00A7cFailed to read history: " + e.getMessage());
+            sender.sendMessage(messages.get("history_read_failed", e.getMessage()));
         }
     }
 
     private void handleRollback(CommandSender sender, String[] args) {
         if (!config.isHistoryEnabled() || !config.isBackupsEnabled()) {
-            sender.sendMessage(messages.get("feature_disabled", "history"));
+            sender.sendMessage(messages.get("feature_disabled", messages.featureName("history")));
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(messages.get("invalid_usage", "/ponderer-admin rollback <sceneId> <timestamp>"));
+            sender.sendMessage(messages.get("invalid_usage", messages.get("usage_admin_rollback")));
             return;
         }
         String sceneId = args[1];
@@ -571,7 +584,7 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
                     ? messages.get("rollback_success", sceneId, timestamp)
                     : messages.get("rollback_failed", sceneId));
         } catch (IOException e) {
-            sender.sendMessage("\u00A7cRollback failed: " + e.getMessage());
+            sender.sendMessage(messages.get("rollback_error", e.getMessage()));
         }
     }
 
@@ -599,22 +612,25 @@ public final class PondererAdminCommand implements CommandExecutor, TabCompleter
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(messages.get("admin_help_header"));
-        sender.sendMessage("\u00A7f/ponderer-admin topup <player> <amount>\u00A77 - add AI tokens");
-        sender.sendMessage("\u00A7f/ponderer-admin settokens <player> <amount>\u00A77 - set AI token balance");
-        sender.sendMessage("\u00A7f/ponderer-admin tokens <player>\u00A77 - show token balance");
-        sender.sendMessage("\u00A7f/ponderer-admin setlimit <player> <limit>\u00A77 - set upload limit (-1 = unlimited)");
-        sender.sendMessage("\u00A7f/ponderer-admin resetcount <player>\u00A77 - reset upload count");
-        sender.sendMessage("\u00A7f/ponderer-admin stats <player>\u00A77 - show player stats");
-        sender.sendMessage("\u00A7f/ponderer-admin scenes\u00A77 - show total scenes");
-        sender.sendMessage("\u00A7f/ponderer-admin grant <player> <perm>\u00A77 - grant permission");
-        sender.sendMessage("\u00A7f/ponderer-admin revoke <player> <perm>\u00A77 - revoke permission");
-        sender.sendMessage("\u00A7f/ponderer-admin reload\u00A77 - reload config and messages");
-        sender.sendMessage("\u00A7f/ponderer-admin review <list|approve|reject>\u00A77 - manage review queue");
-        sender.sendMessage("\u00A7f/ponderer-admin group <create|delete|addplayer|removeplayer|list>\u00A77 - manage visibility groups");
-        sender.sendMessage("\u00A7f/ponderer-admin collab <add-scene|remove-scene|add-global|remove-global>\u00A77 - manage collaborators");
-        sender.sendMessage("\u00A7f/ponderer-admin reports <list|dismiss>\u00A77 - manage reports");
-        sender.sendMessage("\u00A7f/ponderer-admin history <sceneId>\u00A77 - list backups");
-        sender.sendMessage("\u00A7f/ponderer-admin rollback <sceneId> <timestamp>\u00A77 - restore backup");
+        for (String key : List.of(
+                "admin_help_topup",
+                "admin_help_settokens",
+                "admin_help_tokens",
+                "admin_help_setlimit",
+                "admin_help_resetcount",
+                "admin_help_stats",
+                "admin_help_scenes",
+                "admin_help_grant",
+                "admin_help_revoke",
+                "admin_help_reload",
+                "admin_help_review",
+                "admin_help_group",
+                "admin_help_collab",
+                "admin_help_reports",
+                "admin_help_history",
+                "admin_help_rollback")) {
+            sender.sendMessage(messages.get(key));
+        }
     }
 
     private UUID resolveUuid(String name) {

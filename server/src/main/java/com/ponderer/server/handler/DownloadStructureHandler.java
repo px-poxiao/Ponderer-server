@@ -34,7 +34,7 @@ public final class DownloadStructureHandler {
     public void handle(Player player, String sourceId) {
         if (!config.isStructureImportEnabled()) {
             sendResult(player, new DownloadStructureResultPacket(sourceId, "", false, "Feature disabled"));
-            player.sendMessage(messages.get("feature_disabled", "structure_import"));
+            player.sendMessage(messages.get("feature_disabled", messages.featureName("structure_import")));
             return;
         }
         if (!permissions.canUpload(player)) {

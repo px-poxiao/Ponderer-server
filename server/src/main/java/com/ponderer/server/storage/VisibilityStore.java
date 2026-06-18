@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -82,22 +83,22 @@ public final class VisibilityStore {
     private Map<String, VisibilityEntry> loadVis() {
         if (!Files.exists(visFile)) return new HashMap<>();
         try { Map<String, VisibilityEntry> m = GSON.fromJson(Files.readString(visFile), VIS_TYPE); return m != null ? m : new HashMap<>(); }
-        catch (IOException e) { logger.warning("Failed to load visibility: " + e.getMessage()); return new HashMap<>(); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_visibility_load_failed", e.getMessage())); return new HashMap<>(); }
     }
 
     private Map<String, List<String>> loadGrp() {
         if (!Files.exists(grpFile)) return new HashMap<>();
         try { Map<String, List<String>> m = GSON.fromJson(Files.readString(grpFile), GRP_TYPE); return m != null ? m : new HashMap<>(); }
-        catch (IOException e) { logger.warning("Failed to load groups: " + e.getMessage()); return new HashMap<>(); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_groups_load_failed", e.getMessage())); return new HashMap<>(); }
     }
 
     private void saveVis() {
         try { Files.createDirectories(visFile.getParent()); Files.writeString(visFile, GSON.toJson(visibility)); }
-        catch (IOException e) { logger.warning("Failed to save visibility: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_visibility_save_failed", e.getMessage())); }
     }
 
     private void saveGrp() {
         try { Files.createDirectories(grpFile.getParent()); Files.writeString(grpFile, GSON.toJson(groups)); }
-        catch (IOException e) { logger.warning("Failed to save groups: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_groups_save_failed", e.getMessage())); }
     }
 }

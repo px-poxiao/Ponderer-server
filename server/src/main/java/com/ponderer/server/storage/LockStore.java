@@ -2,6 +2,7 @@ package com.ponderer.server.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ponderer.server.config.MessageConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -39,11 +40,11 @@ public final class LockStore {
     private Map<String, String> load() {
         if (!Files.exists(dataFile)) return new HashMap<>();
         try { Map<String, String> m = GSON.fromJson(Files.readString(dataFile), MAP_TYPE); return m != null ? m : new HashMap<>(); }
-        catch (IOException e) { logger.warning("Failed to load locks: " + e.getMessage()); return new HashMap<>(); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_locks_load_failed", e.getMessage())); return new HashMap<>(); }
     }
 
     private void save() {
         try { Files.createDirectories(dataFile.getParent()); Files.writeString(dataFile, GSON.toJson(locks)); }
-        catch (IOException e) { logger.warning("Failed to save locks: " + e.getMessage()); }
+        catch (IOException e) { logger.warning(MessageConfig.global("log_locks_save_failed", e.getMessage())); }
     }
 }

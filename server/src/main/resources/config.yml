@@ -1,7 +1,6 @@
-# Ponderer Server Plugin Configuration
+# Ponderer 服务端插件配置
 
-# Master feature switches. Disable a feature here to make the related
-# commands and plugin-message handlers return a clear "disabled" response.
+# 功能总开关。关闭某项功能后，相关命令和插件消息处理器会返回明确的“功能已关闭”提示。
 features:
   sync: true
   upload: true
@@ -20,94 +19,94 @@ features:
   permission_admin: true
   player_stats: true
 
-# AI provider settings for server-side API proxy.
+# 服务端 AI 代理设置。
 ai:
   provider: "anthropic"       # anthropic | openai
-  api_base_url: ""            # Empty = provider default
+  api_base_url: ""            # 留空 = 使用所选服务商默认地址
   api_key: ""
-  model: ""                   # Empty = provider default
+  model: ""                   # 留空 = 使用所选服务商默认模型
   max_tokens: 16384
   fail_if_api_key_missing: true
   allow_client_provider_override: false
   pricing:
-    anthropic_input: 3.0      # USD per 1M input tokens
-    anthropic_output: 15.0    # USD per 1M output tokens
+    anthropic_input: 3.0      # 每 100 万输入 token 的美元价格
+    anthropic_output: 15.0    # 每 100 万输出 token 的美元价格
     openai_input: 5.0
     openai_output: 15.0
 
-# Rate limiting.
+# 频率限制。
 rate_limit:
-  uploads_per_hour: 20        # 0 = unlimited
+  uploads_per_hour: 20        # 0 = 不限制
 
-# Backup settings. Also requires features.backups = true.
+# 备份设置。还需要 features.backups = true。
 backup:
-  max_backups: 10             # 0 = disabled
+  max_backups: 10             # 0 = 关闭
 
-# Logging and statistics.
+# 日志和统计。
 logging:
   log_ai_calls: true
   log_uploads: true
   log_topups: true
 
-# Default upload limit. 0 = unlimited. LuckPerms meta "ponderer-upload-limit"
-# overrides this value per player. -1 also means unlimited.
+# 默认上传上限。0 = 不限制。LuckPerms 元数据 "ponderer-upload-limit"
+# 可为单个玩家覆盖此值。-1 也表示不限制。
 default_upload_limit: 0
 
-# Scene item filter.
+# 思索场景物品过滤。
 scene_filter:
   enabled: true
   mode: "off"                 # off | whitelist | blacklist
   items: []
 
-# NBT restriction for carrier item / scene metadata.
+# 载体物品 / 思索场景元数据的 NBT 限制。
 nbt_restriction:
   enabled: false
-  mode: "whitelist"           # whitelist = NBT required; blacklist = NBT forbidden
+  mode: "whitelist"           # whitelist = 必须带 NBT；blacklist = 禁止带 NBT
 
-# Upload validation.
+# 上传校验。
 upload_validation:
-  max_scene_size_bytes: 0     # 0 = unlimited
-  push_cooldown_seconds: 0    # 0 = disabled
+  max_scene_size_bytes: 0     # 0 = 不限制
+  push_cooldown_seconds: 0    # 0 = 关闭
   require_region_permission: true
   check_conflicts: true
   allow_force_push: true
 
-# Compatibility aliases kept for older config files.
+# 兼容旧配置文件保留的别名。
 max_scene_size_bytes: 0
 push_cooldown_seconds: 0
 
-# Reports. Also requires features.reports = true.
+# 举报。还需要 features.reports = true。
 reports:
   threshold: 3
   auto_hide: true
 
-# Compatibility alias kept for older config files.
+# 兼容旧配置文件保留的别名。
 report_threshold: 3
 
-# Scene review queue. Also requires features.review = true.
+# 思索场景审核队列。还需要 features.review = true。
 review:
   mode: "auto"                # auto | ai | manual
   ai_error_fallback: "pending" # pending | reject | approve
 
-# Separate AI config for scene review.
+# 单独用于思索场景审核的 AI 配置。
 review_ai:
   provider: "anthropic"
   api_base_url: ""
   api_key: ""
   model: ""
-  system_prompt: "You are a content moderator for a Minecraft server. Review this Ponder scene upload. Carrier item: {item}. Scene ID: {scene}. Scene JSON: {json}. If appropriate, reply only: yes. If inappropriate, reply only: no."
+  system_prompt: "你是 Minecraft 服务器的内容审核员。请审核这个 Ponder 思索场景上传。载体物品：{item}。思索场景 ID：{scene}。思索场景 JSON：{json}。如果内容合适，只回复：yes。如果内容不合适，只回复：no。"
 
-# Scheduled full backup. Also requires features.backups = true.
+# 定时完整备份。还需要 features.backups = true。
 scheduled_backup:
   enabled: false
   interval_hours: 24
 
-# Scene expiry. Requires features.sync = true so scene accesses are recorded.
+# 思索场景过期归档。需要 features.sync = true 才会记录场景访问时间。
 expiry:
   enabled: false
   days: 30
 
-# Client command relay. Also requires features.command_relay = true.
+# 客户端命令转发。还需要 features.command_relay = true。
 client_commands:
   allowed:
     - pull

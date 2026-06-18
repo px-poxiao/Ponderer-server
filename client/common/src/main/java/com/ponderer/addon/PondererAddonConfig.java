@@ -40,7 +40,7 @@ public final class PondererAddonConfig {
                 }
             }
             try (Writer writer = Files.newBufferedWriter(path)) {
-                values.store(writer, "Ponderer Client Addon configuration");
+                values.store(writer, PondererAddonMessages.get("config.header"));
             }
         } catch (IOException ignored) {
         }

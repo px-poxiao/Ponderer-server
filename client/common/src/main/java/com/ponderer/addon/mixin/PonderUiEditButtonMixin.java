@@ -1,6 +1,7 @@
 package com.ponderer.addon.mixin;
 
 import com.ponderer.addon.PondererAddonConfig;
+import com.ponderer.addon.PondererAddonMessages;
 import com.ponderer.addon.PondererReflection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -47,7 +48,7 @@ public abstract class PonderUiEditButtonMixin extends Screen {
         }
 
         int y = this.height - 54;
-        Button editButton = Button.builder(Component.literal("Edit"), button -> {
+        Button editButton = Button.builder(Component.literal(PondererAddonMessages.get("button.edit")), button -> {
             ResourceLocation currentId = pondererAddon$getActiveSceneId();
             if (currentId == null) return;
             Object match = pondererAddon$findSceneMatch(currentId);

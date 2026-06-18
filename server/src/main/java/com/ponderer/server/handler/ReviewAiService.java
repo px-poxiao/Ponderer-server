@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.ponderer.server.ai.AiProvider;
 import com.ponderer.server.ai.AnthropicProvider;
 import com.ponderer.server.ai.OpenAiProvider;
+import com.ponderer.server.config.MessageConfig;
 import com.ponderer.server.config.PluginConfig;
 import com.ponderer.server.network.packets.UploadScenePacket;
 import com.ponderer.server.storage.ReviewStore;
@@ -21,16 +22,18 @@ public final class ReviewAiService {
     private final PluginConfig config;
     private final ReviewStore reviewStore;
     private final UploadHandler uploadHandler;
+    private final MessageConfig messages;
     private final Plugin plugin;
     private final Logger logger;
     private final AiProvider anthropic;
     private final AiProvider openai;
 
     public ReviewAiService(PluginConfig config, ReviewStore reviewStore,
-                           UploadHandler uploadHandler, Plugin plugin, Logger logger) {
+                           UploadHandler uploadHandler, MessageConfig messages, Plugin plugin, Logger logger) {
         this.config = config;
         this.reviewStore = reviewStore;
         this.uploadHandler = uploadHandler;
+        this.messages = messages;
         this.plugin = plugin;
         this.logger = logger;
         OkHttpClient client = new OkHttpClient();
@@ -48,11 +51,11 @@ public final class ReviewAiService {
 
         if (config.getReviewAiApiKey().isBlank()) {
             plugin.getServer().getScheduler().runTask(plugin,
-                    () -> handleAiError(packet, player, "Review AI API key is not configured"));
+                    () -> handleAiError(packet, player, messages.get("review_ai_reason_key_missing")));
             return;
         }
 
-        String systemPrompt = "You are a Minecraft server content moderator. Reply only yes or no.";
+        String systemPrompt = messages.get("review_ai_system_prompt");
         String userContent = buildPrompt(packet);
 
         buildProvider().generate(systemPrompt, userContent,
@@ -60,7 +63,7 @@ public final class ReviewAiService {
                 config.getReviewAiModel(), 16)
                 .whenComplete((result, err) -> {
                     if (err != null) {
-                        logger.warning("Review AI error: " + err.getMessage());
+                        logger.warning(messages.get("review_ai_reason_error", err.getMessage()));
                         plugin.getServer().getScheduler().runTask(plugin,
                                 () -> handleAiError(packet, player, err.getMessage()));
                         return;
@@ -73,10 +76,9 @@ public final class ReviewAiService {
                             ReviewStore.ReviewEntry entry = reviewStore.getEntry(packet.sceneId());
                             if (entry != null) uploadHandler.commitApproved(entry, player);
                         } else {
-                            reviewStore.reject(packet.sceneId(), "AI review rejected");
+                            reviewStore.reject(packet.sceneId(), messages.get("review_ai_reason_rejected"));
                             if (player.isOnline()) {
-                                player.sendMessage("\u00A7cYour scene \u00A7f" + packet.sceneId()
-                                        + " \u00A7cwas rejected by AI review.");
+                                player.sendMessage(messages.get("review_ai_rejected_notify", packet.sceneId()));
                             }
                         }
                     });
@@ -91,16 +93,14 @@ public final class ReviewAiService {
                 if (entry != null) uploadHandler.commitApproved(entry, player);
             }
             case "reject" -> {
-                reviewStore.reject(packet.sceneId(), "AI review error: " + reason);
+                reviewStore.reject(packet.sceneId(), messages.get("review_ai_reason_error", reason));
                 if (player.isOnline()) {
-                    player.sendMessage("\u00A7cYour scene \u00A7f" + packet.sceneId()
-                            + " \u00A7cwas rejected because AI review failed.");
+                    player.sendMessage(messages.get("review_ai_error_rejected_notify", packet.sceneId()));
                 }
             }
             default -> {
                 if (player.isOnline()) {
-                    player.sendMessage("\u00A7eScene \u00A7f" + packet.sceneId()
-                            + " \u00A7eis waiting for manual review because AI review failed.");
+                    player.sendMessage(messages.get("review_ai_pending_notify", packet.sceneId()));
                 }
             }
         }
@@ -110,7 +110,7 @@ public final class ReviewAiService {
         String template = config.getReviewAiSystemPrompt();
         String item = extractCarrierItem(packet.json());
         return template
-                .replace("{item}", item != null ? item : "unknown")
+                .replace("{item}", item != null ? item : messages.get("review_ai_unknown_item"))
                 .replace("{scene}", packet.sceneId())
                 .replace("{json}", packet.json() != null ? packet.json() : "");
     }

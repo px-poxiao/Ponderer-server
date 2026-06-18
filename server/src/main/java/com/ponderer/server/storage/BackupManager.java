@@ -1,5 +1,7 @@
 package com.ponderer.server.storage;
 
+import com.ponderer.server.config.MessageConfig;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -34,7 +36,7 @@ public final class BackupManager {
             Files.write(backup, currentBytes);
             pruneOldBackups(dir);
         } catch (IOException e) {
-            logger.warning("Failed to backup scene " + sceneId + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_backup_scene_failed", sceneId, e.getMessage()));
         }
     }
 
@@ -49,7 +51,7 @@ public final class BackupManager {
             Files.write(backup, currentBytes);
             pruneOldBackups(dir);
         } catch (IOException e) {
-            logger.warning("Failed to backup structure " + structureId + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_backup_structure_failed", structureId, e.getMessage()));
         }
     }
 

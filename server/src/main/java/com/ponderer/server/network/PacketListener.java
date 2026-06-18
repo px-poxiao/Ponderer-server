@@ -1,6 +1,7 @@
 package com.ponderer.server.network;
 
 import com.ponderer.server.ai.AiProxyHandler;
+import com.ponderer.server.config.MessageConfig;
 import com.ponderer.server.handler.DownloadStructureHandler;
 import com.ponderer.server.handler.SyncHandler;
 import com.ponderer.server.handler.UploadHandler;
@@ -42,8 +43,8 @@ public final class PacketListener implements PluginMessageListener {
                         aiHandler.handle(player, AiRequestPacket.decode(message));
             }
         } catch (RuntimeException e) {
-            logger.warning("[Ponderer] Ignored malformed plugin message on " + channel
-                    + " from " + player.getName() + ": " + e.getMessage());
+            logger.warning(MessageConfig.global("log_malformed_plugin_message",
+                    channel, player.getName(), e.getMessage()));
         }
     }
 }
