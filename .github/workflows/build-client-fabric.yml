@@ -45,7 +45,13 @@ jobs:
           gradle-version: "8.8"
 
       - name: Build Fabric standalone client addon
-        run: gradle -p client clean :fabric:build --no-daemon
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            gradle -p client clean :fabric:build --no-daemon && break
+            if [ "$attempt" = "3" ]; then exit 1; fi
+            sleep $((attempt * 20))
+          done
 
       - name: Prepare Fabric standalone artifact
         shell: bash
@@ -53,8 +59,34 @@ jobs:
           mkdir -p dist
           cp client/fabric/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
 
+      - name: Install Ponderer Fabric into local Maven
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="1.9.0.6"
+          artifact_dir="client/local-maven/com/nododiiiii/ponderer-fabric/${version}"
+          mkdir -p "${artifact_dir}"
+          jarfile="client/libs/ponderer-1.21.1-fabric-${version}.jar"
+          test -f "${jarfile}"
+          cp "${jarfile}" "${artifact_dir}/ponderer-fabric-${version}.jar"
+          cat > "${artifact_dir}/ponderer-fabric-${version}.pom" <<POM
+          <project>
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>com.nododiiiii</groupId>
+            <artifactId>ponderer-fabric</artifactId>
+            <version>${version}</version>
+            <packaging>jar</packaging>
+          </project>
+          POM
+
       - name: Build Fabric all-in-one client mod
-        run: gradle -p client clean :fabric:build -PbundlePonderer=true --no-daemon
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            gradle -p client clean :fabric:build -PbundlePonderer=true --no-daemon && break
+            if [ "$attempt" = "3" ]; then exit 1; fi
+            sleep $((attempt * 20))
+          done
 
       - name: Prepare Fabric all-in-one artifact
         shell: bash

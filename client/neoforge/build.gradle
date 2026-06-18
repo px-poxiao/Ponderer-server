@@ -41,7 +41,7 @@ dependencies {
 
     if (bundlePonderer.get()) {
         implementation "com.nododiiiii:ponderer-neoforge:${ponderer_neoforge_version}"
-        jarJar "com.nododiiiii:ponderer-neoforge:[${ponderer_neoforge_version},)"
+        jarJar "com.nododiiiii:ponderer-neoforge:${ponderer_neoforge_version}"
     }
 }
 

@@ -45,7 +45,13 @@ jobs:
           gradle-version: "8.8"
 
       - name: Build NeoForge standalone client addon
-        run: gradle -p client clean :neoforge:build --no-daemon
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            gradle -p client clean :neoforge:build --no-daemon && break
+            if [ "$attempt" = "3" ]; then exit 1; fi
+            sleep $((attempt * 20))
+          done
 
       - name: Prepare NeoForge standalone artifact
         shell: bash
@@ -74,7 +80,13 @@ jobs:
           POM
 
       - name: Build NeoForge all-in-one client mod
-        run: gradle -p client clean :neoforge:build -PbundlePonderer=true --no-daemon
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            gradle -p client clean :neoforge:build -PbundlePonderer=true --no-daemon && break
+            if [ "$attempt" = "3" ]; then exit 1; fi
+            sleep $((attempt * 20))
+          done
 
       - name: Prepare NeoForge all-in-one artifact
         shell: bash

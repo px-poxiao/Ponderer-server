@@ -35,7 +35,13 @@ jobs:
           gradle-version: "8.8"
 
       - name: Build server plugin
-        run: gradle -p server clean build --no-daemon
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            gradle -p server clean build --no-daemon && break
+            if [ "$attempt" = "3" ]; then exit 1; fi
+            sleep $((attempt * 20))
+          done
 
       - name: Prepare server artifact
         shell: bash
