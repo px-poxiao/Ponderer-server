@@ -3,6 +3,9 @@ plugins {
 }
 
 def commonProject = project(":common")
+def bundlePonderer = providers.gradleProperty("bundlePonderer")
+        .map { it.toBoolean() }
+        .orElse(false)
 
 base {
     archivesName = "ponderer-client-addon"
@@ -35,6 +38,11 @@ neoForge {
 
 dependencies {
     implementation "net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}"
+
+    if (bundlePonderer.get()) {
+        implementation "com.nododiiiii:ponderer-neoforge:${ponderer_version}"
+        jarJar "com.nododiiiii:ponderer-neoforge:[${ponderer_version},)"
+    }
 }
 
 tasks.named("compileJava", JavaCompile).configure {

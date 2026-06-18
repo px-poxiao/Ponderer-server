@@ -3,6 +3,9 @@ plugins {
 }
 
 def commonProject = project(":common")
+def bundlePonderer = providers.gradleProperty("bundlePonderer")
+        .map { it.toBoolean() }
+        .orElse(false)
 
 base {
     archivesName = "ponderer-client-addon"
@@ -14,6 +17,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
+    if (bundlePonderer.get()) {
+        modImplementation(include(files("../libs/ponderer-${minecraft_version}-fabric-${ponderer_version}.jar")))
+    }
 }
 
 loom {

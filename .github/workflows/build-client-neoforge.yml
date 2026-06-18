@@ -42,19 +42,65 @@ jobs:
         with:
           gradle-version: "8.8"
 
-      - name: Build NeoForge client mod
+      - name: Build NeoForge standalone client addon
         run: gradle -p client clean :neoforge:build --no-daemon
 
-      - name: Prepare NeoForge artifact
+      - name: Prepare NeoForge standalone artifact
         shell: bash
         run: |
           mkdir -p dist
           cp client/neoforge/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_neoforge.jar
 
-      - name: Upload NeoForge client mod
+      - name: Checkout Ponderer
+        uses: actions/checkout@v4
+        with:
+          repository: Nobodiiiii/Ponderer
+          ref: 1.21.1
+          path: _deps/ponderer
+
+      - name: Build Ponderer NeoForge
+        run: gradle -p _deps/ponderer :NeoForge:build --no-daemon
+
+      - name: Install Ponderer NeoForge into local Maven
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="1.7.1.5"
+          artifact_dir="client/local-maven/com/nododiiiii/ponderer-neoforge/${version}"
+          mkdir -p "${artifact_dir}"
+          jarfile="$(find _deps/ponderer/NeoForge/build/libs -maxdepth 1 -name 'ponderer-1.21.1-neoforge-*.jar' ! -name '*sources*' | head -n 1)"
+          test -n "${jarfile}"
+          cp "${jarfile}" "${artifact_dir}/ponderer-neoforge-${version}.jar"
+          cat > "${artifact_dir}/ponderer-neoforge-${version}.pom" <<POM
+          <project>
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>com.nododiiiii</groupId>
+            <artifactId>ponderer-neoforge</artifactId>
+            <version>${version}</version>
+            <packaging>jar</packaging>
+          </project>
+          POM
+
+      - name: Build NeoForge all-in-one client mod
+        run: gradle -p client clean :neoforge:build -PbundlePonderer=true --no-daemon
+
+      - name: Prepare NeoForge all-in-one artifact
+        shell: bash
+        run: |
+          cp client/neoforge/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_all_in_one_1.0_mc1.21.1_neoforge.jar
+
+      - name: Upload NeoForge standalone client addon
         uses: actions/upload-artifact@v4
         with:
           name: ponderer_client_addon_1.0_mc1.21.1_neoforge
           path: dist/ponderer_client_addon_1.0_mc1.21.1_neoforge.jar
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload NeoForge all-in-one client mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: ponderer_client_all_in_one_1.0_mc1.21.1_neoforge
+          path: dist/ponderer_client_all_in_one_1.0_mc1.21.1_neoforge.jar
           if-no-files-found: error
           retention-days: 14

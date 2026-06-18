@@ -5,6 +5,7 @@ on:
     paths:
       - "client/common/**"
       - "client/fabric/**"
+      - "client/libs/**"
       - "client/build.gradle"
       - "client/settings.gradle"
       - "client/gradle.properties"
@@ -13,6 +14,7 @@ on:
     paths:
       - "client/common/**"
       - "client/fabric/**"
+      - "client/libs/**"
       - "client/build.gradle"
       - "client/settings.gradle"
       - "client/gradle.properties"
@@ -42,19 +44,35 @@ jobs:
         with:
           gradle-version: "8.8"
 
-      - name: Build Fabric client mod
+      - name: Build Fabric standalone client addon
         run: gradle -p client clean :fabric:build --no-daemon
 
-      - name: Prepare Fabric artifact
+      - name: Prepare Fabric standalone artifact
         shell: bash
         run: |
           mkdir -p dist
           cp client/fabric/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
 
-      - name: Upload Fabric client mod
+      - name: Build Fabric all-in-one client mod
+        run: gradle -p client clean :fabric:build -PbundlePonderer=true --no-daemon
+
+      - name: Prepare Fabric all-in-one artifact
+        shell: bash
+        run: |
+          cp client/fabric/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_all_in_one_1.0_mc1.21.1_fabric.jar
+
+      - name: Upload Fabric standalone client addon
         uses: actions/upload-artifact@v4
         with:
           name: ponderer_client_addon_1.0_mc1.21.1_fabric
           path: dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Fabric all-in-one client mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: ponderer_client_all_in_one_1.0_mc1.21.1_fabric
+          path: dist/ponderer_client_all_in_one_1.0_mc1.21.1_fabric.jar
           if-no-files-found: error
           retention-days: 14

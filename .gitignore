@@ -11,3 +11,5 @@ out/
 
 run/
 logs/
+
+client/local-maven/
