@@ -5,6 +5,7 @@ import com.ponderer.addon.PondererAddonConfig;
 import com.ponderer.addon.PondererConfigAccess;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Pseudo
 @Mixin(targets = "com.nododiiiii.ponderer.ai.AiSceneGenerator", remap = false)
 public class AiSceneGeneratorMixin {
 
@@ -21,7 +23,8 @@ public class AiSceneGeneratorMixin {
         method = "generate",
         at = @At("HEAD"),
         cancellable = true,
-        remap = false
+        remap = false,
+        require = 0
     )
     private static void onGenerate(
             List<Path> structurePaths,
