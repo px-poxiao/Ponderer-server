@@ -3,7 +3,9 @@ package com.ponderer.addon.mixin;
 import com.nododiiiii.ponderer.ponder.SceneRuntime;
 import com.ponderer.addon.PondererAddonConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -16,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 @Pseudo
 @Mixin(targets = "net.createmod.ponder.foundation.ui.PonderUI", remap = false)
@@ -36,6 +39,10 @@ public abstract class PonderUiEditButtonMixin extends Screen {
 
         ResourceLocation activeId = pondererAddon$getActiveSceneId();
         if (activeId == null || SceneRuntime.findBySceneId(activeId) == null) {
+            return;
+        }
+
+        if (pondererAddon$hasExistingEditWidget()) {
             return;
         }
 
@@ -65,6 +72,28 @@ public abstract class PonderUiEditButtonMixin extends Screen {
         } catch (ReflectiveOperationException ignored) {
             return null;
         }
+    }
+
+    @Unique
+    private boolean pondererAddon$hasExistingEditWidget() {
+        int originalX = this.width - 80 - 31;
+        int originalY = this.height - 20 - 31;
+        for (GuiEventListener child : this.children()) {
+            if (child == pondererAddon$editButton) {
+                continue;
+            }
+            if (child instanceof AbstractWidget widget) {
+                String className = widget.getClass().getName();
+                boolean nearOriginalSlot = Math.abs(widget.getX() - originalX) <= 8
+                        && Math.abs(widget.getY() - originalY) <= 8;
+                boolean looksLikePonderButton = className.contains("PonderButton");
+                boolean looksLikeEditButton = widget.getMessage().getString().toLowerCase(Locale.ROOT).contains("edit");
+                if (nearOriginalSlot && (looksLikePonderButton || looksLikeEditButton)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Unique

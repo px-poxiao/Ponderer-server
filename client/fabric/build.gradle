@@ -1,0 +1,39 @@
+plugins {
+    id "fabric-loom" version "${loom_version}"
+}
+
+def commonProject = project(":common")
+
+base {
+    archivesName = "ponderer-client-addon"
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    implementation(commonProject)
+    modCompileOnly fileTree(dir: "../libs", include: "*.jar")
+}
+
+loom {
+    mixin.setDefaultRefmapName("ponderer_client_addon.refmap.json")
+}
+
+tasks.named("compileJava", JavaCompile).configure {
+    source(commonProject.sourceSets.main.allSource)
+}
+
+tasks.withType(Javadoc).configureEach {
+    source(commonProject.sourceSets.main.allJava)
+}
+
+tasks.matching { it.name == "sourcesJar" && it instanceof Jar }.configureEach {
+    from(commonProject.sourceSets.main.allSource)
+}
+
+processResources {
+    from commonProject.sourceSets.main.resources
+}

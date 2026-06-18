@@ -31,15 +31,16 @@ jobs:
       - name: Build server plugin
         run: gradle -p server clean build --no-daemon
 
-      - name: Build client mod
-        run: gradle -p client clean build --no-daemon
+      - name: Build client mods
+        run: gradle -p client clean :fabric:build :neoforge:build --no-daemon
 
       - name: Prepare release artifacts
         shell: bash
         run: |
           mkdir -p dist
           cp server/build/libs/ponderer_server-1.0.jar dist/ponderer_server_1.0.jar
-          cp client/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+          cp client/fabric/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+          cp client/neoforge/build/libs/ponderer-client-addon-1.0.jar dist/ponderer_client_addon_1.0_mc1.21.1_neoforge.jar
 
       - name: Upload server plugin
         uses: actions/upload-artifact@v4
@@ -49,10 +50,18 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload client mod
+      - name: Upload Fabric client mod
         uses: actions/upload-artifact@v4
         with:
           name: ponderer_client_addon_1.0_mc1.21.1_fabric
           path: dist/ponderer_client_addon_1.0_mc1.21.1_fabric.jar
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload NeoForge client mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: ponderer_client_addon_1.0_mc1.21.1_neoforge
+          path: dist/ponderer_client_addon_1.0_mc1.21.1_neoforge.jar
           if-no-files-found: error
           retention-days: 14

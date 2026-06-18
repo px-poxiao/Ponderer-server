@@ -1,7 +1,5 @@
 package com.ponderer.addon;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -31,8 +29,8 @@ public final class PondererAddonConfig {
 
     private PondererAddonConfig() {}
 
-    public static void load() {
-        Path path = configPath();
+    public static void load(Path configDir) {
+        Path path = configDir.resolve("ponderer_client_addon.properties");
         values = new Properties(DEFAULTS);
         try {
             Files.createDirectories(path.getParent());
@@ -84,7 +82,4 @@ public final class PondererAddonConfig {
         return Boolean.parseBoolean(values.getProperty(key, Boolean.toString(def)));
     }
 
-    private static Path configPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve("ponderer_client_addon.properties");
-    }
 }
