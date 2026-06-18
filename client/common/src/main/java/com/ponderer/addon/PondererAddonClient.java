@@ -44,9 +44,28 @@ public final class PondererAddonClient {
             return;
         }
 
-        String requestId = PendingAiRequests.register(onSuccess, onError);
+        String requestId = PendingAiRequests.register(
+                onSuccess,
+                onError,
+                PondererAddonConfig.getServerAiRequestTimeoutSeconds(),
+                PondererAddonMessages.get("client.ai_request_timeout",
+                        PondererAddonConfig.getServerAiRequestTimeoutSeconds()));
         String provider = PondererConfigAccess.getProvider();
-        network.sendToServer(new AiRequestPayload(requestId, provider, systemPrompt, userContent));
+        try {
+            network.sendToServer(new AiRequestPayload(requestId, provider, systemPrompt, userContent));
+        } catch (RuntimeException e) {
+            PendingAiRequests.resolve(requestId, null,
+                    PondererAddonMessages.get("client.ai_send_failed", rootMessage(e)));
+        }
+    }
+
+    private static String rootMessage(Throwable throwable) {
+        Throwable cause = throwable;
+        while (cause.getCause() != null && cause.getCause() != cause) {
+            cause = cause.getCause();
+        }
+        String message = cause.getMessage();
+        return message == null || message.isBlank() ? cause.getClass().getSimpleName() : message;
     }
 
     @FunctionalInterface

@@ -24,7 +24,7 @@ public final class PondererAddonNeoForge {
     }
 
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(NETWORK_VERSION);
+        PayloadRegistrar registrar = event.registrar(NETWORK_VERSION).optional();
 
         registrar.playToServer(AiRequestPayload.TYPE, AiRequestPayload.CODEC, (payload, context) -> {
             // The Paper plugin handles this packet on multiplayer servers.

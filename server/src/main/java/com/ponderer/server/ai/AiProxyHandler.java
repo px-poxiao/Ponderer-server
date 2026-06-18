@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 public final class AiProxyHandler {
 
+    private static final int MAX_PLUGIN_MESSAGE_BYTES = 32766;
+
     private final PluginConfig config;
     private final PermissionManager permissions;
     private final PlayerDataStore playerData;
@@ -108,13 +110,23 @@ public final class AiProxyHandler {
 
     private void sendResponse(Player player, String requestId, String result) {
         if (!player.isOnline()) return;
-        player.sendPluginMessage(plugin, AiResponsePacket.CHANNEL,
-                new AiResponsePacket(requestId, result, null).encode());
+        sendPacket(player, new AiResponsePacket(requestId, result, null));
     }
 
     private void sendError(Player player, String requestId, String error) {
         if (!player.isOnline()) return;
-        player.sendPluginMessage(plugin, AiResponsePacket.CHANNEL,
-                new AiResponsePacket(requestId, null, error).encode());
+        sendPacket(player, new AiResponsePacket(requestId, null, error));
+    }
+
+    private void sendPacket(Player player, AiResponsePacket packet) {
+        byte[] payload = packet.encode();
+        if (payload.length > MAX_PLUGIN_MESSAGE_BYTES) {
+            payload = new AiResponsePacket(
+                    packet.requestId(),
+                    null,
+                    messages.get("ai_response_too_large", payload.length, MAX_PLUGIN_MESSAGE_BYTES)
+            ).encode();
+        }
+        player.sendPluginMessage(plugin, AiResponsePacket.CHANNEL, payload);
     }
 }

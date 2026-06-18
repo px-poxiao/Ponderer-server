@@ -43,7 +43,7 @@ public class AiSceneGeneratorMixin {
         if (!PondererAddonConfig.isServerAiProxyEnabled() || !PondererConfigAccess.getApiKey().isEmpty()) return;
 
         ci.cancel();
-        onStatus.accept(PondererAddonMessages.get("client.ai_status_connecting"));
+        onStatus.accept(PondererAddonMessages.get("client.ai_status_server_model"));
 
         StringBuilder userContent = new StringBuilder();
         userContent.append("Target item: ").append(carrierItemId).append("\n");
@@ -92,6 +92,7 @@ public class AiSceneGeneratorMixin {
                     Files.writeString(outPath, json);
                     reloadScenes();
                     onSuccess.accept(outPath.toString());
+                    onStatus.accept(PondererAddonMessages.get("client.ai_success_server_model"));
                 } catch (Exception e) {
                     onError.accept(PondererAddonMessages.get("client.ai_save_failed", e.getMessage()));
                 }
