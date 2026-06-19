@@ -3,6 +3,7 @@ package com.ponderer.server.handler;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ponderer.server.ai.AiProvider;
+import com.ponderer.server.ai.AiRequestDebug;
 import com.ponderer.server.ai.AnthropicProvider;
 import com.ponderer.server.ai.OpenAiProvider;
 import com.ponderer.server.config.MessageConfig;
@@ -57,10 +58,18 @@ public final class ReviewAiService {
 
         String systemPrompt = messages.get("review_ai_system_prompt");
         String userContent = buildPrompt(packet);
+        String provider = config.getReviewAiProvider();
+        String baseUrl = config.getReviewAiBaseUrl();
+        String apiKey = config.getReviewAiApiKey();
+        String model = config.getReviewAiModel();
 
-        buildProvider().generate(systemPrompt, userContent,
-                config.getReviewAiBaseUrl(), config.getReviewAiApiKey(),
-                config.getReviewAiModel(), 16)
+        logger.info("[Ponderer] Review AI request scene=" + packet.sceneId()
+                + " provider=" + provider
+                + " url=" + AiRequestDebug.providerUrl(provider, baseUrl)
+                + " model=" + (model == null || model.isBlank() ? "<default>" : model)
+                + " key=" + AiRequestDebug.keyFingerprint(apiKey));
+
+        buildProvider().generate(systemPrompt, userContent, baseUrl, apiKey, model, 16)
                 .whenComplete((result, err) -> {
                     if (err != null) {
                         logger.warning(messages.get("review_ai_reason_error", err.getMessage()));

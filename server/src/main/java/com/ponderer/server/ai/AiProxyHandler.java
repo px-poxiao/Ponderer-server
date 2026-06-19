@@ -71,13 +71,22 @@ public final class AiProxyHandler {
                 ? packet.provider()
                 : config.getAiProvider();
         AiProvider aiProvider = "openai".equalsIgnoreCase(provider) ? openai : anthropic;
+        String baseUrl = config.getAiBaseUrl();
+        String apiKey = config.getAiApiKey();
+        String model = config.getAiModel();
+
+        logger.info("[Ponderer] AI request by " + player.getName()
+                + " provider=" + provider
+                + " url=" + AiRequestDebug.providerUrl(provider, baseUrl)
+                + " model=" + (model == null || model.isBlank() ? "<default>" : model)
+                + " key=" + AiRequestDebug.keyFingerprint(apiKey));
 
         aiProvider.generate(
                 packet.systemPrompt(),
                 packet.userContent(),
-                config.getAiBaseUrl(),
-                config.getAiApiKey(),
-                config.getAiModel(),
+                baseUrl,
+                apiKey,
+                model,
                 config.getAiMaxTokens()
         ).whenComplete((result, err) -> {
             if (err != null) {

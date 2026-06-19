@@ -70,8 +70,8 @@ public final class OpenAiProvider implements AiProvider {
         return future;
     }
 
-    private static String chatCompletionsUrl(String baseUrl) {
-        String base = stripTrailingSlash(baseUrl);
+    public static String chatCompletionsUrl(String baseUrl) {
+        String base = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE : stripTrailingSlash(baseUrl);
         if (base.endsWith("/chat/completions")) {
             return base;
         }

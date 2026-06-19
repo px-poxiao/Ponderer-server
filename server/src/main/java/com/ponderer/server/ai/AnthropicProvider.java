@@ -22,7 +22,7 @@ public final class AnthropicProvider implements AiProvider {
     @Override
     public CompletableFuture<String> generate(String systemPrompt, String userContent,
                                                String baseUrl, String apiKey, String model, int maxTokens) {
-        String base = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE : baseUrl;
+        String base = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE : baseUrl.trim();
         String mdl  = (model == null || model.isBlank()) ? DEFAULT_MODEL : model;
 
         JsonObject body = new JsonObject();
@@ -39,7 +39,7 @@ public final class AnthropicProvider implements AiProvider {
         body.add("messages", messages);
 
         Request request = new Request.Builder()
-                .url(base + "/v1/messages")
+                .url(messagesUrl(base))
                 .header("x-api-key", apiKey)
                 .header("anthropic-version", "2023-06-01")
                 .header("content-type", "application/json")
@@ -63,5 +63,19 @@ public final class AnthropicProvider implements AiProvider {
             }
         });
         return future;
+    }
+
+    public static String messagesUrl(String baseUrl) {
+        String base = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE : baseUrl.trim();
+        while (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+        if (base.endsWith("/v1/messages")) {
+            return base;
+        }
+        if (base.endsWith("/v1")) {
+            return base + "/messages";
+        }
+        return base + "/v1/messages";
     }
 }
