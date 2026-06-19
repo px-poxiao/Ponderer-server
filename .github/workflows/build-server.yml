@@ -63,10 +63,19 @@ jobs:
           retention-days: 14
 
       - name: Deploy server plugin to Debian
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && env.MC_SSH_HOST != '' && env.MC_SSH_USER != '' && env.MC_SSH_KEY != ''
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
+          echo "Deploy event: ${{ github.event_name }}"
+          echo "Deploy ref: ${{ github.ref }}"
+
+          missing=0
+          if [ -z "${MC_SSH_HOST:-}" ]; then echo "Missing secret: MC_SSH_HOST"; missing=1; fi
+          if [ -z "${MC_SSH_USER:-}" ]; then echo "Missing secret: MC_SSH_USER"; missing=1; fi
+          if [ -z "${MC_SSH_KEY:-}" ]; then echo "Missing secret: MC_SSH_KEY"; missing=1; fi
+          if [ "$missing" = "1" ]; then exit 1; fi
+
           port="${MC_SSH_PORT:-22}"
 
           mkdir -p ~/.ssh
