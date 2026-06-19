@@ -13,3 +13,5 @@ run/
 logs/
 
 client/local-maven/
+
+deploy/

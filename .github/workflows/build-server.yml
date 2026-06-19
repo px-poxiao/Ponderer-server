@@ -18,6 +18,11 @@ jobs:
   build-server:
     name: Build server plugin
     runs-on: ubuntu-latest
+    env:
+      MC_SSH_HOST: ${{ secrets.MC_SSH_HOST }}
+      MC_SSH_USER: ${{ secrets.MC_SSH_USER }}
+      MC_SSH_PORT: ${{ secrets.MC_SSH_PORT }}
+      MC_SSH_KEY: ${{ secrets.MC_SSH_KEY }}
 
     steps:
       - name: Checkout
@@ -56,3 +61,23 @@ jobs:
           path: dist/ponderer_server_1.0.jar
           if-no-files-found: error
           retention-days: 14
+
+      - name: Deploy server plugin to Debian
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.MC_SSH_HOST != '' && env.MC_SSH_USER != '' && env.MC_SSH_KEY != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${MC_SSH_PORT:-22}"
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$MC_SSH_KEY" > ~/.ssh/ponderer_deploy_key
+          chmod 600 ~/.ssh/ponderer_deploy_key
+          ssh-keyscan -p "$port" "$MC_SSH_HOST" >> ~/.ssh/known_hosts
+
+          scp -P "$port" -i ~/.ssh/ponderer_deploy_key \
+            dist/ponderer_server_1.0.jar \
+            "${MC_SSH_USER}@${MC_SSH_HOST}:/tmp/ponderer_server.jar"
+
+          ssh -p "$port" -i ~/.ssh/ponderer_deploy_key \
+            "${MC_SSH_USER}@${MC_SSH_HOST}" \
+            "sudo /usr/local/bin/deploy-ponderer-server /tmp/ponderer_server.jar"
