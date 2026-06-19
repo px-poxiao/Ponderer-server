@@ -21,6 +21,8 @@ public final class PondererAddonConfig {
         DEFAULTS.setProperty("features.command_relay", "true");
         DEFAULTS.setProperty("features.file_watcher", "true");
         DEFAULTS.setProperty("features.edit_button", "true");
+        DEFAULTS.setProperty("storage.separate_by_world", "true");
+        DEFAULTS.setProperty("storage.context_root_dir", "contexts");
         DEFAULTS.setProperty("ai.validate_json", "true");
         DEFAULTS.setProperty("ai.server_request_timeout_seconds", "180");
         DEFAULTS.setProperty("file_watcher.show_toast", "true");
@@ -61,6 +63,15 @@ public final class PondererAddonConfig {
 
     public static boolean isEditButtonEnabled() {
         return bool("features.edit_button", true);
+    }
+
+    public static boolean isStorageSeparationEnabled() {
+        return bool("storage.separate_by_world", true);
+    }
+
+    public static String getStorageContextRootDir() {
+        String value = values.getProperty("storage.context_root_dir", "contexts").trim();
+        return value.isBlank() ? "contexts" : value.replace('\\', '_').replace('/', '_');
     }
 
     public static boolean shouldValidateAiJson() {

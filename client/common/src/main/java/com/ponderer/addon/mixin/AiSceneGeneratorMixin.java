@@ -4,6 +4,7 @@ import com.ponderer.addon.PondererAddonClient;
 import com.ponderer.addon.PondererAddonConfig;
 import com.ponderer.addon.PondererAddonMessages;
 import com.ponderer.addon.PondererConfigAccess;
+import com.ponderer.addon.PondererStorageContext;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -131,7 +132,7 @@ public class AiSceneGeneratorMixin {
             Class<?> storeClass = Class.forName("com.nododiiiii.ponderer.ponder.SceneStore");
             return (Path) storeClass.getMethod("getSceneDir").invoke(null);
         } catch (Exception e) {
-            return Path.of("config", "ponderer", "scripts");
+            return PondererStorageContext.sceneDir();
         }
     }
 

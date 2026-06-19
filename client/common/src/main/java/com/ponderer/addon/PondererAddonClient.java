@@ -23,6 +23,7 @@ public final class PondererAddonClient {
 
         PondererAddonMessages.load(configDir);
         PondererAddonConfig.load(configDir);
+        PondererStorageContext.init(configDir);
         if (PondererAddonConfig.isFileWatcherEnabled()) {
             FileWatcherService.start();
         }

@@ -35,46 +35,67 @@ public final class FileWatcherService {
     }
 
     private static void watch() {
-        Path sceneDir = getSceneDir();
-        if (sceneDir == null) return;
+        AtomicReference<ScheduledFuture<?>> debounce = new AtomicReference<>();
+        WatchService watcher = null;
+        String watchedContext = "";
 
-        try {
-            Files.createDirectories(sceneDir);
-        } catch (Exception ignored) {
-            return;
-        }
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                String currentContext = PondererStorageContext.contextKey();
+                if (watcher == null || !currentContext.equals(watchedContext)) {
+                    if (watcher != null) {
+                        try {
+                            watcher.close();
+                        } catch (Exception ignored) {
+                        }
+                    }
 
-        try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
-            sceneDir.register(watcher,
-                    StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_MODIFY);
+                    Path sceneDir = getSceneDir();
+                    if (sceneDir == null) {
+                        sleepOneSecond();
+                        continue;
+                    }
+                    Files.createDirectories(sceneDir);
 
-            AtomicReference<ScheduledFuture<?>> debounce = new AtomicReference<>();
+                    watcher = FileSystems.getDefault().newWatchService();
+                    sceneDir.register(watcher,
+                            StandardWatchEventKinds.ENTRY_CREATE,
+                            StandardWatchEventKinds.ENTRY_MODIFY);
+                    watchedContext = currentContext;
+                }
 
-            while (!Thread.currentThread().isInterrupted()) {
-                WatchKey key;
                 try {
-                    key = watcher.take();
+                    WatchKey key = watcher.poll(1, TimeUnit.SECONDS);
+                    if (key == null) continue;
+
+                    boolean hasChange = key.pollEvents().stream()
+                            .anyMatch(e -> e.kind() != StandardWatchEventKinds.OVERFLOW);
+
+                    key.reset();
+
+                    if (hasChange) {
+                        ScheduledFuture<?> prev = debounce.getAndSet(null);
+                        if (prev != null) prev.cancel(false);
+                        ScheduledFuture<?> next = SCHEDULER.schedule(
+                                () -> Minecraft.getInstance().execute(FileWatcherService::showToast),
+                                2, TimeUnit.SECONDS);
+                        debounce.set(next);
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
                 }
-
-                boolean hasChange = key.pollEvents().stream()
-                        .anyMatch(e -> e.kind() != StandardWatchEventKinds.OVERFLOW);
-
-                key.reset();
-
-                if (hasChange) {
-                    ScheduledFuture<?> prev = debounce.getAndSet(null);
-                    if (prev != null) prev.cancel(false);
-                    ScheduledFuture<?> next = SCHEDULER.schedule(
-                            () -> Minecraft.getInstance().execute(FileWatcherService::showToast),
-                            2, TimeUnit.SECONDS);
-                    debounce.set(next);
+            } catch (Exception ignored) {
+                if (watcher != null) {
+                    try {
+                        watcher.close();
+                    } catch (Exception closeIgnored) {
+                    }
+                    watcher = null;
                 }
+                watchedContext = "";
+                sleepOneSecond();
             }
-        } catch (Exception ignored) {
         }
     }
 
@@ -94,6 +115,14 @@ public final class FileWatcherService {
             return (Path) storeClass.getMethod("getSceneDir").invoke(null);
         } catch (Exception e) {
             return Path.of("config", "ponderer", "scripts");
+        }
+    }
+
+    private static void sleepOneSecond() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

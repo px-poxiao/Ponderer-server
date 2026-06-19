@@ -4,8 +4,13 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AiSceneGeneratorMixin",
+    "AiSceneGeneratorStorageMixin",
+    "MinecraftStorageContextMixin",
     "PondererCanEditMixin",
-    "PonderUiEditButtonMixin"
+    "PonderPackRegistryStorageMixin",
+    "PonderUiEditButtonMixin",
+    "SceneStoreStorageMixin",
+    "TriggerManagerStorageMixin"
   ],
   "injectors": {
     "defaultRequire": 1
