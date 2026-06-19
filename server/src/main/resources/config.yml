@@ -22,7 +22,7 @@ features:
 # 服务端 AI 代理设置。
 ai:
   provider: "anthropic"       # anthropic | openai
-  api_base_url: ""            # 留空 = 使用所选服务商默认地址
+  api_base_url: ""            # 留空 = 使用所选服务商默认地址。DeepSeek 填 https://api.deepseek.com
   api_key: ""
   model: ""                   # 留空 = 使用所选服务商默认模型
   max_tokens: 16384

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
 public final class OpenAiProvider implements AiProvider {
@@ -22,7 +23,7 @@ public final class OpenAiProvider implements AiProvider {
     @Override
     public CompletableFuture<String> generate(String systemPrompt, String userContent,
                                                String baseUrl, String apiKey, String model, int maxTokens) {
-        String base = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE : baseUrl;
+        String base = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE : baseUrl.trim();
         String mdl  = (model == null || model.isBlank()) ? DEFAULT_MODEL : model;
 
         JsonArray messages = new JsonArray();
@@ -43,7 +44,7 @@ public final class OpenAiProvider implements AiProvider {
         body.add("messages", messages);
 
         Request request = new Request.Builder()
-                .url(base + "/v1/chat/completions")
+                .url(chatCompletionsUrl(base))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("content-type", "application/json")
                 .post(RequestBody.create(GSON.toJson(body), MediaType.get("application/json")))
@@ -67,5 +68,36 @@ public final class OpenAiProvider implements AiProvider {
             }
         });
         return future;
+    }
+
+    private static String chatCompletionsUrl(String baseUrl) {
+        String base = stripTrailingSlash(baseUrl);
+        if (base.endsWith("/chat/completions")) {
+            return base;
+        }
+        if (base.endsWith("/v1")) {
+            return base + "/chat/completions";
+        }
+        if (isDeepSeek(base)) {
+            return base + "/chat/completions";
+        }
+        return base + "/v1/chat/completions";
+    }
+
+    private static String stripTrailingSlash(String value) {
+        String result = value.trim();
+        while (result.endsWith("/")) {
+            result = result.substring(0, result.length() - 1);
+        }
+        return result;
+    }
+
+    private static boolean isDeepSeek(String baseUrl) {
+        try {
+            String host = URI.create(baseUrl).getHost();
+            return host != null && host.equalsIgnoreCase("api.deepseek.com");
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
     }
 }

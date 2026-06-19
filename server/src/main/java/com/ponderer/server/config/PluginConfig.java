@@ -48,10 +48,10 @@ public final class PluginConfig {
     }
 
     // Player AI
-    public String getAiProvider() { return cfg.getString("ai.provider", "anthropic"); }
-    public String getAiBaseUrl() { return cfg.getString("ai.api_base_url", ""); }
-    public String getAiApiKey() { return cfg.getString("ai.api_key", ""); }
-    public String getAiModel() { return cfg.getString("ai.model", ""); }
+    public String getAiProvider() { return text("ai.provider", "anthropic"); }
+    public String getAiBaseUrl() { return text("ai.api_base_url", ""); }
+    public String getAiApiKey() { return text("ai.api_key", ""); }
+    public String getAiModel() { return text("ai.model", ""); }
     public int getAiMaxTokens() { return cfg.getInt("ai.max_tokens", 16384); }
     public boolean shouldFailIfAiKeyMissing() { return cfg.getBoolean("ai.fail_if_api_key_missing", true); }
     public boolean isClientProviderOverrideAllowed() { return cfg.getBoolean("ai.allow_client_provider_override", false); }
@@ -123,10 +123,10 @@ public final class PluginConfig {
         return cfg.getString("review.ai_error_fallback", "pending");
     }
 
-    public String getReviewAiProvider() { return cfg.getString("review_ai.provider", "anthropic"); }
-    public String getReviewAiBaseUrl() { return cfg.getString("review_ai.api_base_url", ""); }
-    public String getReviewAiApiKey() { return cfg.getString("review_ai.api_key", ""); }
-    public String getReviewAiModel() { return cfg.getString("review_ai.model", ""); }
+    public String getReviewAiProvider() { return text("review_ai.provider", "anthropic"); }
+    public String getReviewAiBaseUrl() { return text("review_ai.api_base_url", ""); }
+    public String getReviewAiApiKey() { return text("review_ai.api_key", ""); }
+    public String getReviewAiModel() { return text("review_ai.model", ""); }
     public String getReviewAiSystemPrompt() {
         return cfg.getString("review_ai.system_prompt",
                 "You are a content moderator for a Minecraft server. Review this Ponder scene upload. " +
@@ -149,6 +149,11 @@ public final class PluginConfig {
 
     private boolean feature(String name, boolean def) {
         return cfg.getBoolean("features." + name, def);
+    }
+
+    private String text(String path, String def) {
+        String value = cfg.getString(path, def);
+        return value == null ? "" : value.trim();
     }
 
     private int getIntCompat(String preferred, String legacy, int def) {
