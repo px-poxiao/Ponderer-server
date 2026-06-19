@@ -39,7 +39,7 @@ permissions:
     default: op
   ponderer.ai.use_server_api:
     description: 允许使用服务器提供的 AI API
-    default: false
+    default: op
   ponderer.admin.topup:
     description: 允许为玩家充值服务器 AI API token
     default: op

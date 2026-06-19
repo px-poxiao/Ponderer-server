@@ -53,6 +53,7 @@ public final class PluginConfig {
     public String getAiApiKey() { return text("ai.api_key", ""); }
     public String getAiModel() { return text("ai.model", ""); }
     public int getAiMaxTokens() { return cfg.getInt("ai.max_tokens", 16384); }
+    public int getAiHttpTimeoutSeconds() { return Math.max(10, cfg.getInt("ai.http_timeout_seconds", 300)); }
     public boolean shouldFailIfAiKeyMissing() { return cfg.getBoolean("ai.fail_if_api_key_missing", true); }
     public boolean isClientProviderOverrideAllowed() { return cfg.getBoolean("ai.allow_client_provider_override", false); }
 
@@ -127,6 +128,7 @@ public final class PluginConfig {
     public String getReviewAiBaseUrl() { return text("review_ai.api_base_url", ""); }
     public String getReviewAiApiKey() { return text("review_ai.api_key", ""); }
     public String getReviewAiModel() { return text("review_ai.model", ""); }
+    public int getReviewAiHttpTimeoutSeconds() { return Math.max(10, cfg.getInt("review_ai.http_timeout_seconds", getAiHttpTimeoutSeconds())); }
     public String getReviewAiSystemPrompt() {
         return cfg.getString("review_ai.system_prompt",
                 "You are a content moderator for a Minecraft server. Review this Ponder scene upload. " +

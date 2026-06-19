@@ -53,7 +53,7 @@ public final class OpenAiProvider implements AiProvider {
         CompletableFuture<String> future = new CompletableFuture<>();
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(Call call, IOException e) { future.completeExceptionally(e); }
-            @Override public void onResponse(Call call, Response response) throws IOException {
+            @Override public void onResponse(Call call, Response response) {
                 try (ResponseBody rb = response.body()) {
                     String json = rb != null ? rb.string() : "";
                     if (!response.isSuccessful()) {
@@ -64,6 +64,8 @@ public final class OpenAiProvider implements AiProvider {
                     String text = obj.getAsJsonArray("choices").get(0).getAsJsonObject()
                             .getAsJsonObject("message").get("content").getAsString();
                     future.complete(text);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
                 }
             }
         });

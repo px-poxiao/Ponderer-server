@@ -49,7 +49,7 @@ public final class AnthropicProvider implements AiProvider {
         CompletableFuture<String> future = new CompletableFuture<>();
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(Call call, IOException e) { future.completeExceptionally(e); }
-            @Override public void onResponse(Call call, Response response) throws IOException {
+            @Override public void onResponse(Call call, Response response) {
                 try (ResponseBody rb = response.body()) {
                     String json = rb != null ? rb.string() : "";
                     if (!response.isSuccessful()) {
@@ -59,6 +59,8 @@ public final class AnthropicProvider implements AiProvider {
                     JsonObject obj = GSON.fromJson(json, JsonObject.class);
                     String text = obj.getAsJsonArray("content").get(0).getAsJsonObject().get("text").getAsString();
                     future.complete(text);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
                 }
             }
         });

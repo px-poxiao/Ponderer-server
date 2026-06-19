@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -37,7 +38,12 @@ public final class ReviewAiService {
         this.messages = messages;
         this.plugin = plugin;
         this.logger = logger;
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(config.getReviewAiHttpTimeoutSeconds()))
+                .writeTimeout(Duration.ofSeconds(config.getReviewAiHttpTimeoutSeconds()))
+                .readTimeout(Duration.ofSeconds(config.getReviewAiHttpTimeoutSeconds()))
+                .callTimeout(Duration.ofSeconds(config.getReviewAiHttpTimeoutSeconds() + 15L))
+                .build();
         this.anthropic = new AnthropicProvider(client);
         this.openai = new OpenAiProvider(client);
     }

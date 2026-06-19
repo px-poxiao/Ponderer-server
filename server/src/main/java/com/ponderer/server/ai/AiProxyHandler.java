@@ -11,6 +11,7 @@ import okhttp3.OkHttpClient;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.time.Duration;
 import java.util.logging.Logger;
 
 public final class AiProxyHandler {
@@ -37,7 +38,12 @@ public final class AiProxyHandler {
         this.messages = messages;
         this.plugin = plugin;
         this.logger = logger;
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(config.getAiHttpTimeoutSeconds()))
+                .writeTimeout(Duration.ofSeconds(config.getAiHttpTimeoutSeconds()))
+                .readTimeout(Duration.ofSeconds(config.getAiHttpTimeoutSeconds()))
+                .callTimeout(Duration.ofSeconds(config.getAiHttpTimeoutSeconds() + 15L))
+                .build();
         this.anthropic = new AnthropicProvider(client);
         this.openai = new OpenAiProvider(client);
     }
