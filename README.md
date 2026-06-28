@@ -1,7 +1,5 @@
 # Ponderer-server
 
-
-
 为 Minecraft Java 模组 [Nobodiiiii/Ponderer](https://github.com/Nobodiiiii/Ponderer) 提供了 bukkit 系服务端支持，并添加了许多易于服务器管理的功能。
 
 ## 兼容的游戏版本与平台
@@ -88,3 +86,7 @@
 - 在生存模式下也可调用思索编辑。
 
 - 高度可自定义化，所有功能支持自主开关，所有显示文本支持自定义，支持通过 LuckPerms 进行持久权限和上传上限管理。
+
+## 命令，权限组，配置信息
+
+见 [Ponderer-server 文档 | Ponderer-server](https://px-poxiao.github.io/Ponderer-server/)，托管于 GitHub Pages。
