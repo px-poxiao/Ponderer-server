@@ -66,15 +66,15 @@ jobs:
 
       - name: Build server plugin
         shell: bash
-        run: gradle -p server clean build --no-daemon
+        run: gradle -p server clean build --no-daemon --no-build-cache --rerun-tasks
 
       - name: Build Fabric client addon
         shell: bash
-        run: gradle -p client clean :fabric:build --no-daemon
+        run: gradle -p client clean :fabric:build --no-daemon --no-build-cache --rerun-tasks
 
       - name: Build NeoForge client addon
         shell: bash
-        run: gradle -p client :neoforge:build --no-daemon
+        run: gradle -p client :neoforge:build --no-daemon --no-build-cache --rerun-tasks
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
