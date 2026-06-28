@@ -1,4 +1,4 @@
-﻿import { defineConfig } from "vitepress";
+import { defineConfig } from "vitepress";
 
 const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1];
 
