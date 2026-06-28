@@ -4,23 +4,23 @@
 
 ## 权限节点
 
-| 权限 | 默认 | 作用 |
-| --- | --- | --- |
-| `ponderer.pull` | 所有人 | 允许从服务器拉取思索场景 |
-| `ponderer.report` | 所有人 | 允许举报思索场景 |
-| `ponderer.upload` | OP | 允许上传、创建、编辑、删除和复制思索场景 |
-| `ponderer.lock` | OP | 允许锁定或解锁自己的思索场景 |
-| `ponderer.create.region` | OP | 允许创建区域或坐标触发型思索场景 |
-| `ponderer.blueprint` | OP | 允许使用蓝图工具 |
-| `ponderer.pack.import` | OP | 允许导入思索场景包 |
-| `ponderer.pack.export` | OP | 允许导出思索场景包 |
-| `ponderer.ai.use_server_api` | OP | 允许使用服务器提供的 AI API |
-| `ponderer.admin` | OP | 允许使用 `/ponderer-admin` 管理命令 |
-| `ponderer.admin.topup` | OP | 允许管理玩家服务器 AI token |
-| `ponderer.admin.review` | OP | 允许处理审核队列 |
-| `ponderer.admin.groups` | OP | 允许管理可见性分组 |
-| `ponderer.admin.collab` | OP | 允许管理协作者 |
-| `ponderer.admin.reports` | OP | 允许处理举报 |
+| 权限                           | 默认  | 作用                          |
+| ---------------------------- | --- | --------------------------- |
+| `ponderer.pull`              | 所有人 | 允许从服务器拉取思索场景                |
+| `ponderer.report`            | 所有人 | 允许举报思索场景                    |
+| `ponderer.upload`            | OP  | 允许上传、创建、编辑、删除和复制思索场景        |
+| `ponderer.lock`              | OP  | 允许锁定或解锁自己的思索场景              |
+| `ponderer.create.region`     | OP  | 允许创建区域或坐标触发型思索场景            |
+| `ponderer.blueprint`         | OP  | 允许使用蓝图工具                    |
+| `ponderer.pack.import`       | OP  | 允许导入思索场景包                   |
+| `ponderer.pack.export`       | OP  | 允许导出思索场景包                   |
+| `ponderer.ai.use_server_api` | OP  | 允许使用服务器提供的 AI API           |
+| `ponderer.admin`             | OP  | 允许使用 `/ponderer-admin` 管理命令 |
+| `ponderer.admin.topup`       | OP  | 允许管理玩家服务器 AI token          |
+| `ponderer.admin.review`      | OP  | 允许处理审核队列                    |
+| `ponderer.admin.groups`      | OP  | 允许管理可见性分组                   |
+| `ponderer.admin.collab`      | OP  | 允许管理协作者                     |
+| `ponderer.admin.reports`     | OP  | 允许处理举报                      |
 
 ## 推荐分组
 
