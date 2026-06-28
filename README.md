@@ -1,6 +1,6 @@
 # Ponderer-server
 
----
+
 
 为 Minecraft Java 模组 [Nobodiiiii/Ponderer](https://github.com/Nobodiiiii/Ponderer) 提供了 bukkit 系服务端支持，并添加了许多易于服务器管理的功能。
 
@@ -31,7 +31,7 @@
 
 将 `ponderer_server_[version_id].jar` 放入`./plugins` 文件夹即可。
 
-第一次启动会自动生成配置文件 `config.yml` 和信息配置文件 `message.yml`，可随心配置。
+第一次启动会自动生成配置文件 `config.yml` 和信息配置文件 `messages.yml`，可随心配置。
 
 ### 客户端
 
